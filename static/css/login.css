@@ -1,0 +1,109 @@
+html, body {
+  height: 100%; /* Full viewport height */
+  margin: 0; /* Remove default margin */
+  font-family: 'Segoe UI', sans-serif; /* Base font */
+  background: #bbb4b4; /* Light gray background */
+  display: flex; /* Use flex layout */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  color: #333; /* Base text color */
+}
+
+.login-box {
+  background: #ffffff; /* White box background */
+  color: #333; /* Text color */
+  padding: 40px 35px; /* Inner spacing */
+  border-radius: 12px; /* Rounded corners */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  width: 100%; /* Full width */
+  max-width: 420px; /* Max width */
+}
+
+.login-box img {
+  background: none; /* No background for images */
+  padding: 0; /* No padding */
+}
+
+.form-control {
+  background-color: #f9f9f9; /* Light input background */
+  border: 1px solid #ddd; /* Light gray border */
+  color: #333; /* Input text color */
+}
+
+.form-control::placeholder {
+  color: #888; /* Placeholder text color */
+}
+
+.form-label {
+  font-weight: 500; /* Semi-bold */
+  font-size: 0.95rem; /* Slightly smaller font */
+}
+
+.input-group-text {
+  background-color: #f1f1f1; /* Light background */
+  border: 1px solid #ddd; /* Border */
+  color: #555; /* Text color */
+}
+
+.btn-primary {
+  background-color: #00bcd4; /* Cyan background */
+  border: none; /* No border */
+  color: #fff; /* White text */
+}
+
+.btn-primary:hover {
+  background-color: #0097a7; /* Darker on hover */
+}
+
+.btn-outline-secondary {
+  border: 2px solid #6c757d; /* Gray border */
+  color: #6c757d; /* Gray text */
+}
+
+.btn-outline-secondary:hover {
+  background-color: #6c757d; /* Fill on hover */
+  color: #fff; /* White text on hover */
+}
+
+.btn-lg {
+  font-size: 1.1rem; /* Larger font */
+  padding: 0.75rem 1rem; /* Larger padding */
+}
+
+a {
+  color: #00bcd4; /* Cyan link */
+}
+
+a:hover {
+  color: #0097a7; /* Darker on hover */
+  text-decoration: underline; /* Underline on hover */
+}
+
+/* Remove default password reveal icon on Edge/IE */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+/* Remove default password reveal styling in all browsers */
+input[type="password"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* Toggle password button */
+#togglePassword {
+  border: 1px solid #ddd; /* Light border */
+  background: #f1f1f1; /* Light background */
+  color: #555; /* Text color */
+}
+
+#togglePassword:hover {
+  background: #e2e6ea; /* Slightly darker background */
+  color: #333; /* Darker text on hover */
+}
+
+#togglePassword i {
+  font-size: 1rem; /* Icon size */
+}

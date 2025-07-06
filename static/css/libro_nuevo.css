@@ -1,0 +1,94 @@
+html, body {
+  height: 100%; /* Full viewport height */
+  margin: 0; /* Remove default margin */
+  background: #1e293b; /* Solid dark blue background */
+  display: flex; /* Flex layout */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  font-family: 'Segoe UI', sans-serif; /* Main font */
+}
+
+.form-box-light {
+  background-color: #ffffff; /* White container */
+  padding: 40px; /* Inner spacing */
+  border-radius: 20px; /* Rounded corners */
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.2); /* Outer shadow */
+  max-width: 1200px; /* Max width for 4 columns */
+  width: 100%; /* Full width */
+}
+
+h2 {
+  text-align: center; /* Centered heading */
+  margin-bottom: 10px; /* Space below heading */
+  color: #333; /* Dark text */
+}
+
+.descripcion-libro {
+  text-align: center; /* Centered description */
+  font-size: 1rem; /* Base font size */
+  margin-bottom: 25px; /* Space below */
+  color: #555; /* Medium text */
+}
+
+.form-label {
+  font-weight: bold; /* Bold labels */
+  color: #333; /* Dark text */
+}
+
+.form-control {
+  background-color: #f9f9f9; /* Light input background */
+  border: 1px solid #ccc; /* Light border */
+  color: #333; /* Input text color */
+}
+
+.form-control::placeholder {
+  color: #aaa; /* Placeholder text color */
+}
+
+.form-control:focus {
+  border-color: #0d6efd; /* Blue border on focus */
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25); /* Focus shadow */
+}
+
+.btn-success {
+  background-color: #198754; /* Green background */
+  border-radius: 25px; /* Rounded shape */
+  border: none; /* No border */
+  padding: 10px 20px; /* Inner spacing */
+}
+
+.btn-danger,
+.btn-primary {
+  border-radius: 25px; /* Rounded shape */
+  padding: 10px 20px; /* Inner spacing */
+}
+
+.text-danger {
+  color: #dc3545 !important; /* Red text for errors */
+}
+
+.img-preview {
+  display: block; /* Block element */
+  max-height: 200px; /* Limit height */
+  margin: 0 auto 15px; /* Center and margin bottom */
+  border-radius: 5px; /* Slight rounding */
+}
+
+/* Responsive: 4-column grid */
+.form-grid .col-lg-3 {
+  margin-bottom: 1rem; /* Space below on desktop */
+}
+
+@media (max-width: 992px) {
+  .form-grid .col-lg-3 {
+    flex: 0 0 50%; /* Half width on medium screens */
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 576px) {
+  .form-grid .col-lg-3 {
+    flex: 0 0 100%; /* Full width on small screens */
+    max-width: 100%;
+  }
+}

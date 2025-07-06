@@ -1,0 +1,95 @@
+/* ======= General page layout ======= */
+html, body {
+  height: 100%; /* Full viewport height */
+  margin: 0; /* Remove default margin */
+  font-family: 'Segoe UI', sans-serif; /* Base font family */
+  background: #bbb4b4; /* Light gray background */
+  display: flex; /* Use flexbox layout */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  color: #333; /* Default text color */
+}
+
+/* ======= Form container ======= */
+.form-container {
+  background-color: #fff; /* White box background */
+  padding: 40px; /* Inner spacing */
+  border-radius: 12px; /* Rounded corners */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  width: 100%; /* Full width */
+  max-width: 900px; /* Max width for two columns */
+}
+
+/* ======= Form input fields ======= */
+.form-control {
+  background-color: #f9f9f9; /* Light background for inputs */
+  border: 1px solid #ddd; /* Light gray border */
+  color: #333; /* Text color */
+}
+
+.form-control::placeholder {
+  color: #888; /* Placeholder text color */
+}
+
+/* ======= Input group addon ======= */
+.input-group-text {
+  background-color: #f1f1f1; /* Light background */
+  border: 1px solid #ddd; /* Border */
+  color: #555; /* Text color */
+}
+
+/* ======= Labels ======= */
+.form-label {
+  font-weight: 500; /* Semi-bold label text */
+}
+
+/* ======= Buttons ======= */
+.btn-success {
+  background-color: #00c853; /* Bright green */
+  border: none; /* No border */
+}
+
+.btn-success:hover {
+  background-color: #00b248; /* Darker green on hover */
+}
+
+.btn-secondary {
+  background-color: #6c757d; /* Gray button */
+  border: none; /* No border */
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268; /* Darker gray on hover */
+}
+
+/* ======= Error message ======= */
+.error-message {
+  color: #d9534f; /* Red error text */
+  font-size: 0.85rem; /* Smaller text */
+}
+
+/* ======= Links ======= */
+a {
+  color: #00bcd4; /* Cyan link */
+}
+
+a:hover {
+  color: #0097a7; /* Darker on hover */
+  text-decoration: underline; /* Underline on hover */
+}
+
+/* ======= Grid layout for form ======= */
+.form-grid {
+  display: grid; /* Use CSS grid */
+  grid-template-columns: 1fr 1fr; /* Two equal columns */
+  gap: 20px; /* Space between columns */
+}
+
+.form-grid .mb-3 {
+  margin-bottom: 20px; /* Space below form groups */
+}
+
+/* ======= Full-width buttons across grid ======= */
+.d-grid {
+  grid-column: span 2; /* Span across both columns */
+}

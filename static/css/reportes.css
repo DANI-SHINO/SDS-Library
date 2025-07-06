@@ -1,0 +1,45 @@
+/* ======= Body general styling ======= */
+body {
+  background: #1e293b; /* Dark blue background */
+  display: flex; /* Use flexbox */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  min-height: 100vh; /* Full viewport height */
+  margin: 0; /* Remove default margin */
+  font-family: 'Segoe UI', sans-serif; /* Base font */
+}
+
+/* ======= Main container ======= */
+.login-box {
+  background: #ffffff; /* White background box */
+  padding: 40px 35px; /* Inner spacing */
+  border-radius: 12px; /* Rounded corners */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  width: 100%; /* Full width */
+  max-width: 900px; /* Maximum width for large content */
+  color: #000; /* Dark text inside */
+}
+
+/* ======= Main title ======= */
+.login-box h2 {
+  font-weight: 700; /* Bold title */
+  margin-bottom: 10px; /* Space below */
+  color: #000; /* Black title text */
+}
+
+/* ======= Subtext / description ======= */
+.login-box p {
+  font-size: 0.95rem; /* Slightly smaller text */
+  color: #333; /* Dark gray text */
+  margin-bottom: 25px; /* Space below */
+}
+
+/* ======= Responsive table container ======= */
+.table-responsive {
+  margin-top: 20px; /* Space above table */
+}
+
+/* ======= Buttons styling ======= */
+.btn {
+  min-width: 140px; /* Minimum button width for consistency */
+}

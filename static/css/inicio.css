@@ -1,0 +1,96 @@
+:root {
+  --primary: #1e3a8a; /* Main primary color */
+  --primary-dark: #172554; /* Darker primary variant */
+  --background: #0f172a; /* Page background, dark */
+  --surface: #ffffff; /* Surface background, white */
+  --text: #1e293b; /* Dark text for contrast */
+  --accent: #00c853; /* Accent color */
+}
+
+body {
+  background-color: var(--background); /* Apply background */
+  color: var(--text); /* Apply text color */
+  font-family: 'Poppins', sans-serif; /* Main font */
+  margin: 0; /* Remove default margin */
+}
+
+a {
+  text-decoration: none; /* Remove underline from links */
+}
+
+.dashboard-container {
+  display: grid; /* Grid layout */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive columns */
+  gap: 20px; /* Space between boxes */
+  padding: 40px; /* Inner spacing */
+}
+
+.small-box {
+  background-color: var(--surface); /* White background */
+  border-radius: 12px; /* Rounded corners */
+  padding: 20px; /* Inner spacing */
+  color: var(--text); /* Dark text */
+  display: flex; /* Flex layout */
+  justify-content: space-between; /* Space between content */
+  align-items: center; /* Center items vertically */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Hover transition */
+}
+
+.small-box:hover {
+  transform: translateY(-6px); /* Lift up on hover */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Shadow on hover */
+}
+
+.small-box .inner h3 {
+  margin: 0; /* Remove default margin */
+  font-size: 2rem; /* Large heading */
+  font-weight: 600; /* Bold */
+  color: var(--text); /* Dark text */
+}
+
+.small-box .inner p {
+  margin: 0; /* Remove default margin */
+  font-size: 1rem; /* Normal size */
+  color: var(--text); /* Dark text */
+}
+
+.small-box .icon {
+  font-size: 2rem; /* Icon size */
+  opacity: 0.8; /* Slightly transparent */
+  color: var(--primary); /* Primary color for icon */
+}
+
+.container-fluid {
+  max-width: 100%; /* Full width container */
+}
+
+.report-box {
+  background-color: #ffffff; /* White background */
+  border-radius: 16px; /* Rounded corners */
+  padding: 30px; /* Inner spacing */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Light shadow */
+  height: 100%; /* Full height */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Hover transition */
+}
+
+.report-box:hover {
+  transform: translateY(-4px); /* Lift up slightly on hover */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+}
+
+.report-box h6 {
+  color: #000000; /* Heading color */
+  font-weight: 600; /* Bold */
+}
+
+.report-box canvas {
+  width: 100% !important; /* Full width for chart */
+  height: 350px !important; /* Fixed height for chart */
+}
+
+@media (max-width: 992px) {
+  .container-fluid .col-lg-6 {
+    flex: 0 0 100%; /* Full width on small screens */
+    max-width: 100%;
+  }
+}

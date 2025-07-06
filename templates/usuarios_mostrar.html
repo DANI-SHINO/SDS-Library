@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lista de Usuarios</title>
+  <!-- ✅ Bootstrap CSS and Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <!-- ✅ Custom users page CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/usuarios.css') }}">
+</head>
+<body class="bg-light text-dark p-4">
+
+  <!-- ✅ Page title -->
+  <h2 class="mb-3">Lista de Usuarios</h2>
+
+  <!-- ✅ Search input -->
+  <div class="mb-3">
+    <input type="text" id="busqueda-usuario" class="form-control" placeholder="Buscar por nombre, correo o rol...">
+  </div>
+
+  <!-- ✅ Users table -->
+  <div class="table-responsive mb-4">
+    <table class="table table-hover table-bordered align-middle" id="tabla-usuarios">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Correo</th>
+          <th>Rol</th>
+          <th>Llave de Préstamo</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- ✅ Loop over users -->
+        {% for usuario in usuarios %}
+        <tr 
+          data-id="{{ usuario.id }}"
+          data-nombre="{{ usuario.nombre | lower }}"
+          data-email="{{ usuario.correo | lower }}"
+          data-rol="{{ usuario.rol | lower }}">
+          <td>{{ usuario.id }}</td>
+          <td>{{ usuario.nombre }}</td>
+          <td>{{ usuario.correo }}</td>
+          <td>{{ usuario.rol }}</td>
+          <td>
+            {% if usuario.llave_prestamo %}
+              {{ usuario.llave_prestamo }}
+            {% else %}
+              <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+          <td class="text-center">
+            {% if current_user.rol == 'administrador' %}
+              {% if usuario.id != 1 %}
+                <!-- ✅ Edit button (disabled for protected admin) -->
+                <button 
+                  class="btn btn-sm btn-outline-primary d-inline-flex align-items-center btn-editar-usuario me-1"
+                  data-id="{{ usuario.id }}">
+                  <i class="bi bi-pencil-square me-1"></i> Editar
+                </button>
+
+                <!-- ✅ Delete button (disabled for protected admin) -->
+                <button 
+                  class="btn btn-sm btn-outline-danger d-inline-flex align-items-center btn-eliminar-usuario"
+                  data-id="{{ usuario.id }}">
+                  <i class="bi bi-trash me-1"></i> Eliminar
+                </button>
+              {% else %}
+                <!-- 🚫 Protected admin user: no actions -->
+                <span class="text-muted">No hay acciones para realizar</span>
+              {% endif %}
+            {% else %}
+              <!-- 🔒 If not admin: no actions available -->
+              <span class="text-muted">Sin acciones</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ✅ Dynamic edit form container -->
+  <div id="contenedor-formulario-usuario"></div>
+
+  <!-- ✅ Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- ✅ Custom JS for user actions -->
+  <script src="{{ url_for('static', filename='js/usuarios_mostrar.js') }}"></script>
+
+</body>
+</html>

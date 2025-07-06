@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registro - Biblioteca</title>
+
+  <!-- ✅ Bootstrap and icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- ✅ Custom register styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/registro.css') }}">
+</head>
+<body>
+  <!-- ✅ Centered form container -->
+  <div class="form-container text-center">
+    <!-- ✅ Library logo -->
+    <img 
+      src="{{ url_for('static', filename='imagenes/LOGO.png') }}" 
+      alt="Logo Biblioteca" 
+      width="100" 
+      class="mb-3 rounded-circle border border-2 border-light"
+      style="background-color: #1e3a8a; padding: 10px;">
+    
+    <!-- ✅ Register title and subtitle -->
+    <h2 class="fw-semibold mb-1">Crear cuenta</h2>
+    <p class="text-muted mb-4 small">Regístrate para acceder a la biblioteca</p>
+
+    <!-- ✅ Register form -->
+    <form method="POST" action="{{ url_for('main.registro') }}" id="registroForm">
+      {{ form.hidden_tag() }}
+
+      <div class="row g-3 text-start">
+        <!-- ✅ Column 1 -->
+        <div class="col-md-4">
+          <!-- ✅ Name field -->
+          <label class="form-label">{{ form.nombre.label }}</label>
+          <div class="input-group mb-2">
+            <span class="input-group-text"><i class="bi bi-person"></i></span>
+            {{ form.nombre(class="form-control", placeholder="Nombre") }}
+          </div>
+
+          <!-- ✅ Document field -->
+          <label class="form-label">{{ form.documento.label }}</label>
+          <div class="input-group mb-2">
+            <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+            {{ form.documento(class="form-control", placeholder="Número de documento") }}
+          </div>
+
+          <!-- ✅ Birth date field -->
+          <label class="form-label">{{ form.fecha_nacimiento.label }}</label>
+          <div class="input-group mb-2">
+            <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+            {{ form.fecha_nacimiento(class="form-control", type="date") }}
+          </div>
+        </div>
+
+        <!-- ✅ Column 2 -->
+        <div class="col-md-4">
+          <!-- ✅ Last name field -->
+          <label class="form-label">{{ form.apellido.label }}</label>
+          <div class="input-group mb-2">
+            <span class="input-group-text"><i class="bi bi-person-vcard"></i></span>
+            {{ form.apellido(class="form-control", placeholder="Apellido") }}
+          </div>
+
+          <!-- ✅ Address field -->
+          <label class="form-label">{{ form.direccion.label }}</label>
+          <div class="input-group mb-2">
+            <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+            {{ form.direccion(class="form-control", placeholder="Dirección") }}
+          </div>
+
+          <!-- ✅ Password field -->
+          <label class="form-label">{{ form.password.label }}</label>
+          <div class="input-group mb-2">
+            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+            {{ form.password(class="form-control", placeholder="Contraseña") }}
+          </div>
+        </div>
+
+        <!-- ✅ Column 3 -->
+        <div class="col-md-4">
+          <!-- ✅ Email field -->
+          <label class="form-label">{{ form.correo.label }}</label>
+          <div class="input-group mb-2">
+            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+            {{ form.correo(class="form-control", placeholder="Correo electrónico") }}
+          </div>
+
+          <!-- ✅ Phone number field -->
+          <label class="form-label">{{ form.telefono.label }}</label>
+          <div class="input-group mb-2">
+            <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+            {{ form.telefono(class="form-control", placeholder="Número de teléfono") }}
+          </div>
+
+          <!-- ✅ Confirm password field -->
+          <label class="form-label">{{ form.confirm_password.label }}</label>
+          <div class="input-group mb-2">
+            <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+            {{ form.confirm_password(class="form-control", placeholder="Confirmar contraseña") }}
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ Register and login buttons -->
+      <div class="d-grid gap-2 mt-4">
+        {{ form.submit(class="btn btn-success w-100") }}
+        <a href="{{ url_for('main.login') }}" class="btn btn-outline-secondary w-100">¿Ya tienes cuenta? Inicia sesión</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

@@ -1,0 +1,152 @@
+:root {
+  --primary: #1e3a8a; /* Primary color */
+  --primary-dark: #172554; /* Darker primary */
+  --background: #0f172a; /* Main background */
+  --surface: #1e293b; /* Surface background */
+  --text: #f1f5f9; /* Light text */
+  --accent: #00c853; /* Accent color */
+}
+
+body {
+  background-color: var(--background); /* Apply main background */
+  color: var(--text); /* Apply text color */
+  font-family: 'Poppins', sans-serif; /* Main font */
+  margin: 0; /* Remove default margin */
+}
+
+a {
+  text-decoration: none; /* Remove underline */
+}
+
+.navbar {
+  background: rgba(30, 41, 59, 0.8); /* Semi-transparent background */
+  backdrop-filter: blur(10px); /* Blur behind navbar */
+  padding: 8px 16px; /* Inner spacing */
+  border-bottom: 1px solid #334155; /* Bottom border */
+  min-height: 60px; /* Min height */
+  position: sticky; /* Sticky at top */
+  top: 0; /* Stick to top */
+  z-index: 999; /* On top of other elements */
+}
+
+.navbar-brand img {
+  width: 36px; /* Logo width */
+  height: 36px; /* Logo height */
+}
+
+.navbar-brand span {
+  font-size: 1.2rem; /* Brand text size */
+  color: var(--accent); /* Accent color */
+}
+
+.dropdown-menu {
+  background-color: var(--surface); /* Menu background */
+  border: 1px solid #334155; /* Border */
+  border-radius: 10px; /* Rounded corners */
+}
+
+.dropdown-item {
+  color: var(--text); /* Item text color */
+}
+
+.dropdown-item:hover {
+  background-color: #334155; /* Hover background */
+}
+
+.btn-custom {
+  background-color: var(--surface); /* Button background */
+  color: var(--text); /* Button text */
+  border: 2px solid #555; /* Border */
+  border-radius: 20px; /* Rounded */
+  padding: 6px 14px; /* Padding */
+  font-size: 14px; /* Font size */
+}
+
+.btn-custom:hover {
+  background-color: #334155; /* Darker on hover */
+}
+
+.btn-outline-warning:hover {
+  background-color: #ffc107; /* Yellow background on hover */
+  color: black; /* Dark text on hover */
+}
+
+.form-control {
+  background-color: var(--surface); /* Input background */
+  border: 1px solid #555; /* Border */
+  color: white; /* Text color */
+}
+
+.form-control::placeholder {
+  color: #bbb; /* Placeholder color */
+}
+
+.card {
+  background-color: var(--surface); /* Card background */
+  color: var(--text); /* Card text */
+  border-radius: 12px; /* Rounded corners */
+  border: 1px solid #334155; /* Border */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Hover transition */
+}
+
+.card:hover {
+  transform: translateY(-9px); /* Lift on hover */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* Shadow on hover */
+}
+
+.card-title {
+  font-weight: 600; /* Bold title */
+  color: var(--accent); /* Accent color */
+}
+
+.card-text small {
+  color: #9fd1ff; /* Light blue text */
+}
+
+.small-carousel-img {
+  height: 100px; /* Fixed height */
+  object-fit: cover; /* Crop image */
+  border-radius: 10px; /* Rounded corners */
+}
+
+footer {
+  background-color: var(--surface); /* Footer background */
+  color: var(--text); /* Footer text */
+}
+
+.category-carousel .card {
+  cursor: pointer; /* Pointer cursor */
+}
+
+.category-carousel .card:hover {
+  transform: scale(1.05); /* Scale up on hover */
+  transition: transform 0.2s ease; /* Smooth scale */
+}
+
+.text-claro {
+  color: var(--text) !important; /* Force light text */
+}
+
+.report-box {
+  background-color: #ffffff; /* White background */
+  border-radius: 16px; /* Rounded corners */
+  padding: 20px; /* Inner spacing */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Shadow */
+  transition: transform 0.2s ease, box-shadow 0.2s ease; /* Hover transition */
+}
+
+.report-box:hover {
+  transform: translateY(-4px); /* Lift on hover */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Stronger shadow */
+}
+
+.report-box h6 {
+  color: #000000; /* Dark heading */
+  font-weight: 600; /* Bold */
+}
+
+.report-box canvas {
+  max-height: 160px !important; /* Max chart height */
+  width: 100% !important; /* Full width */
+  height: auto !important; /* Auto height */
+}

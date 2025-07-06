@@ -1,0 +1,39 @@
+/* ======= Body general styling ======= */
+body {
+  background: #1e293b; /* Dark blue background */
+  display: flex; /* Enable flex layout */
+  align-items: center; /* Center content vertically */
+  justify-content: center; /* Center content horizontally */
+  height: 100vh; /* Full viewport height */
+}
+
+/* ======= Form container ======= */
+.form-box {
+  background: #fff; /* White background */
+  padding: 40px 30px; /* Inner spacing */
+  border-radius: 16px; /* Rounded corners */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
+  max-width: 480px; /* Max width for the form box */
+  width: 100%; /* Take full width if smaller */
+}
+
+/* ======= Form title ======= */
+.form-box h2 {
+  font-weight: 700; /* Bold title */
+  margin-bottom: 20px; /* Space below title */
+  color: #1e293b; /* Dark blue title text */
+  text-align: center; /* Centered text */
+}
+
+/* ======= Book description text ======= */
+.descripcion-libro {
+  text-align: center; /* Center text */
+  font-size: 0.95rem; /* Small descriptive text */
+  color: #6b7280; /* Muted gray color */
+  margin-bottom: 25px; /* Space below description */
+}
+
+/* ======= Button styling ======= */
+.btn {
+  min-width: 120px; /* Minimum button width */
+}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Resultados de búsqueda{% endblock %}
+
+{% block content %}
+
+  <!-- ✅ Page heading showing the search term -->
+  <h2 class="text-center mb-4">Resultados para "{{ consulta }}"</h2>
+
+  <!-- ✅ If there are results, display them in a grid -->
+  {% if resultados %}
+    <div class="row">
+      {% for libro in resultados %}
+        <div class="col-md-4 mb-4">
+          <!-- ✅ Card for each book -->
+          <div class="card libro-card">
+            <div class="card-body">
+              <!-- ✅ Book title -->
+              <h5 class="card-title">{{ libro.titulo }}</h5>
+
+              <!-- ✅ Book author -->
+              <p class="card-text text-author">Autor: {{ libro.autor }}</p>
+
+              <!-- ✅ Short description preview -->
+              <p class="card-text"><small>{{ libro.descripcion[:100] }}...</small></p>
+
+              <!-- ✅ "View more" or reserve button (link placeholder for now) -->
+              <a href="#" class="btn btn-custom">Ver más</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <!-- ✅ Message when no results -->
+    <p class="text-center text-light">No se encontraron resultados.</p>
+  {% endif %}
+
+{% endblock %}

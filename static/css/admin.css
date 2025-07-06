@@ -1,0 +1,201 @@
+/* Root Variables
+   Define reusable theme colors */
+:root {
+  --primary: #1e3a8a;         /* Main primary color */
+  --primary-dark: #172554;    /* Darker primary variant */
+  --background: #ffffff;      /* Main page background */
+  --surface: #1e293b;         /* Surface/background for panels */
+  --text: #f1f5f9;            /* Default text color on dark surfaces */
+  --accent: white;            /* Accent color for highlights */
+}
+
+/* Body Styles Set global layout and font*/
+body {
+  margin: 0;                        /* Remove default margin */
+  display: flex;                    /* Use flex layout */
+  min-height: 100vh;                /* Ensure body fills viewport */
+  background-color: var(--background);
+  color: var(--text);
+  font-family: 'Poppins', sans-serif; /* Custom font */
+}
+
+/* Navbar Styles*/
+.navbar {
+  background: rgba(30, 41, 59, 0.8); /* Semi-transparent dark background */
+  backdrop-filter: blur(10px);       /* Add blur effect */
+  padding: 9px 10px;                 /* Inner spacing */
+  border-bottom: 1px solid #334155;  /* Bottom border */
+}
+
+/* Navbar logo image */
+.navbar-brand img {
+  width: 40px;
+  height: 40px;
+}
+
+/* Navbar brand text */
+.navbar-brand span {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* Profile Dropdown Menu */
+.dropdown-menu {
+  background-color: var(--surface);  /* Use surface color */
+  border: 1px solid #334155;         /* Border to separate from background */
+  border-radius: 10px;               /* Rounded corners */
+}
+
+.dropdown-item {
+  color: var(--text);                /* Dropdown text color */
+}
+
+.dropdown-item:hover {
+  background-color: #334155;         /* Highlight on hover */
+}
+
+/* Sidebar Styles*/
+.sidebar {
+  width: 190px;                           /* Sidebar width */
+  background: var(--surface);             /* Sidebar background */
+  padding: 5px 10px 20px 10px;            /* Less top padding */
+  border-right: 1px solid #334155;        /* Right border */
+  display: flex;                          /* Use flex layout */
+  flex-direction: column;                 /* Stack items vertically */
+  transition: width 0.3s ease, padding 0.3s ease; /* Smooth collapse transition */
+}
+
+/* Sidebar logo image */
+.sidebar img {
+  display: block;
+  margin-bottom: 8px;                     /* Space below logo */
+}
+
+/* Sidebar section title */
+.sidebar-title {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 0;                          /* Remove top margin */
+  margin-bottom: 10px;                    /* Space below title */
+}
+
+/* Collapsed sidebar */
+.sidebar.collapsed {
+  width: 80px;                            /* Reduced width */
+}
+
+/* Center title when collapsed */
+.sidebar.collapsed .sidebar-title {
+  text-align: center;
+  width: 100%;
+}
+
+/* Sidebar Menu Links*/
+.sidebar a {
+  display: flex;                          /* Flex for icon + text */
+  align-items: center;                    /* Align vertically */
+  gap: 12px;                              /* Space between icon and text */
+  color: var(--text);
+  text-decoration: none;                  /* Remove link underline */
+  padding: 12px 10px;
+  font-size: 16px;
+  border-radius: 6px;                     /* Rounded corners */
+  margin: 4px 0;                          /* Space between links */
+  width: 100%;
+  transition: background 0.2s ease, padding-left 0.3s;
+}
+
+.sidebar a:hover {
+  background-color: rgba(51, 65, 85, 0.3); /* Highlight on hover */
+}
+
+.sidebar a.active {
+  background-color: rgba(51, 65, 85, 0.8); /* Highlight active link */
+  border-left: 4px solid var(--accent);    /* Accent border for active */
+}
+
+/* Hide text labels when collapsed */
+.sidebar.collapsed a span {
+  display: none;
+}
+
+/* Sidebar icons */
+.sidebar i {
+  font-size: 1.4rem;
+}
+
+/* Submenu Styles */
+.menu-item {
+  display: flex;
+  flex-direction: column;
+  margin: 1px 1px;
+}
+
+/* Submenu container */
+.submenu {
+  max-height: 0;                            /* Hidden by default */
+  overflow: hidden;                         /* Hide overflow */
+  transition: max-height 0.3s ease;         /* Smooth expand */
+  display: flex;
+  flex-direction: column;
+  padding-left: 20px;                       /* Indent submenu items */
+}
+
+/* Open submenu */
+.menu-item.open .submenu {
+  max-height: 500px;                        /* Allow items to show */
+}
+
+/* Individual submenu link */
+.submenu-link {
+  color: var(--text);
+  text-decoration: none;
+  padding: 8px 0 8px 35px;                  /* Indent link text */
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.submenu-link:hover {
+  background-color: rgba(51, 65, 85, 0.2);  /* Highlight on hover */
+}
+
+/* Main Content Area*/
+.content {
+  flex-grow: 1;                             /* Expand to fill space */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Container for iframe content */
+.iframe-container {
+  flex-grow: 1;                             /* Expand to fill content area */
+  padding: 10px;
+  background-color: var(--background);
+}
+
+/* Embedded iframe styling */
+iframe {
+  width: 100%;
+  height: calc(95vh - 80px);                /* Adjust height to fit viewport */
+  border-radius: 12px;                      /* Rounded corners */
+  border: 2px solid #334155;                /* Border for iframe */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25); /* Subtle shadow */
+  background-color: var(--background);
+}
+
+/* Profile Photo Styles */
+.profile-photo {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;                       /* Circular shape */
+  overflow: hidden;                         /* Hide overflow */
+  border: 2px solid var(--accent);          /* Accent border */
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);   /* Subtle shadow */
+  transition: transform 0.3s ease;          /* Smooth hover effect */
+}
+
+.profile-photo:hover {
+  transform: scale(1.1);                    /* Enlarge on hover */
+}

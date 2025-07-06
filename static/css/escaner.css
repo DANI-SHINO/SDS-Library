@@ -1,0 +1,77 @@
+html, body {
+  height: 100%; /* Full viewport height */
+  margin: 0; /* Remove default margin */
+  font-family: 'Segoe UI', sans-serif; /* Main font */
+  background: #1e293b; /* Dark blue background */
+  display: flex; /* Flex layout */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  color: #333; /* Default text color */
+}
+
+.scanner-box {
+  background: #ffffff; /* White container */
+  color: #333; /* Text color */
+  padding: 40px 35px; /* Inner spacing */
+  border-radius: 12px; /* Rounded corners */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3); /* Shadow */
+  width: 100%;
+  max-width: 420px; /* Limit max width */
+}
+
+h2 {
+  text-align: center; /* Center title */
+  margin-bottom: 10px; /* Space below */
+  color: #333;
+}
+
+.descripcion-libro {
+  text-align: center; /* Center description */
+  font-size: 1rem;
+  margin-bottom: 25px; /* Space below */
+  color: #555; /* Lighter text */
+}
+
+.form-control {
+  background-color: #f9f9f9; /* Input background */
+  border: 1px solid #ddd; /* Input border */
+  color: #333; /* Input text */
+}
+
+.form-control::placeholder {
+  color: #888; /* Placeholder color */
+}
+
+.input-group-text {
+  background-color: #f1f1f1; /* Group addon background */
+  border: 1px solid #ddd; /* Border */
+  color: #555; /* Text color */
+}
+
+.btn-primary {
+  background-color: #00bcd4; /* Primary button */
+  border: none;
+  color: #fff; /* White text */
+}
+
+.btn-primary:hover {
+  background-color: #0097a7; /* Darker on hover */
+}
+
+.btn-secondary {
+  background-color: #6c757d; /* Secondary button */
+  border: none;
+  color: #fff;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268; /* Darker on hover */
+}
+
+#resultado {
+  margin-top: 1rem; /* Space above */
+  padding: 1rem; /* Inner padding */
+  background-color: #f9f9f9; /* Background */
+  border-radius: 10px; /* Rounded corners */
+  border: 1px solid #ddd; /* Border */
+}

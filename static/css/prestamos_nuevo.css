@@ -1,0 +1,64 @@
+/* ======= General background ======= */
+html, body {
+  height: 100%; /* Full viewport height */
+  margin: 0; /* Remove default margin */
+  background: #1e293b; /* Solid dark blue background */
+  font-family: 'Segoe UI', sans-serif; /* Base font */
+  color: #333; /* Base text color */
+  display: flex; /* Flex layout */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  padding: 40px 20px; /* Outer padding */
+}
+
+/* ======= Main container ======= */
+.prestamo-panel-container {
+  width: 100%; /* Full width */
+  display: flex; /* Flex layout */
+  justify-content: center; /* Center content horizontally */
+}
+
+/* ======= Main box ======= */
+.prestamo-panel {
+  background: #ffffff; /* White background */
+  color: #333; /* Text color */
+  padding: 40px 35px; /* Inner spacing */
+  border-radius: 12px; /* Rounded corners */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3); /* Strong shadow */
+  width: 100%; /* Full width */
+  max-width: 600px; /* Limit max width */
+}
+
+/* ======= Heading and description ======= */
+.prestamo-panel h2 {
+  text-align: center; /* Centered title */
+  margin-bottom: 10px; /* Space below title */
+  font-weight: 600; /* Bold title */
+  color: #333; /* Dark text */
+}
+
+.descripcion-prestamo {
+  text-align: center; /* Centered description */
+  font-size: 1rem; /* Base font size */
+  margin-bottom: 25px; /* Space below */
+  color: #555; /* Medium gray text */
+}
+
+/* ======= Buttons ======= */
+.btn-outline-danger {
+  border-radius: 25px; /* Rounded pill shape */
+  padding: 10px 20px; /* Inner spacing */
+}
+
+.btn-success {
+  border-radius: 25px; /* Rounded pill shape */
+  padding: 10px 20px; /* Inner spacing */
+}
+
+/* ======= Responsive ======= */
+@media (max-width: 768px) {
+  .prestamo-panel {
+    max-width: 100%; /* Full width on small screens */
+    padding: 30px 20px; /* Reduce inner padding */
+  }
+}
