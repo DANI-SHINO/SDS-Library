@@ -19,7 +19,7 @@
          style="max-width: 800px; background: #fff; padding: 40px 35px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); color: #333;">
       
       <!-- ✅ Page title -->
-      <h3 class="mb-4 text-center">Edit Profile</h3>
+      <h3 class="mb-4 text-center">Editar Perfil</h3>
 
       <!-- ✅ Profile edit form -->
       <form method="POST" enctype="multipart/form-data" id="perfilForm">
@@ -29,25 +29,25 @@
 
             <!-- First name -->
             <div class="mb-3">
-              <label for="nombre" class="form-label">First Name:</label>
+              <label for="nombre" class="form-label">Nombre:</label>
               <input type="text" id="nombre" name="nombre" class="form-control" value="{{ usuario.nombre }}">
             </div>
 
             <!-- Last name -->
             <div class="mb-3">
-              <label for="apellido" class="form-label">Last Name:</label>
+              <label for="apellido" class="form-label">Apellido:</label>
               <input type="text" id="apellido" name="apellido" class="form-control" value="{{ usuario.apellido }}">
             </div>
 
             <!-- Document number -->
             <div class="mb-3">
-              <label for="documento" class="form-label">Document Number:</label>
+              <label for="documento" class="form-label">Documento:</label>
               <input type="text" id="documento" name="documento" class="form-control" value="{{ usuario.documento }}">
             </div>
 
             <!-- Address -->
             <div class="mb-3">
-              <label for="direccion" class="form-label">Address:</label>
+              <label for="direccion" class="form-label">Direccion:</label>
               <input type="text" id="direccion" name="direccion" class="form-control" value="{{ usuario.direccion }}">
             </div>
 
@@ -58,25 +58,25 @@
 
             <!-- Email -->
             <div class="mb-3">
-              <label for="correo" class="form-label">Email:</label>
+              <label for="correo" class="form-label">Correo:</label>
               <input type="email" id="correo" name="correo" class="form-control" value="{{ usuario.correo }}">
             </div>
 
             <!-- Phone -->
             <div class="mb-3">
-              <label for="telefono" class="form-label">Phone:</label>
+              <label for="telefono" class="form-label">Telefono:</label>
               <input type="text" id="telefono" name="telefono" class="form-control" value="{{ usuario.telefono }}">
             </div>
 
             <!-- Birth date -->
             <div class="mb-3">
-              <label for="fecha_nacimiento" class="form-label">Date of Birth:</label>
+              <label for="fecha_nacimiento" class="form-label">Fecha Nacimiento:</label>
               <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-control" value="{{ usuario.fecha_nacimiento }}">
             </div>
 
             <!-- Profile picture -->
             <div class="mb-3">
-              <label for="foto_perfil" class="form-label">Profile Picture:</label><br>
+              <label for="foto_perfil" class="form-label">Foto de perfil:</label><br>
               <img src="{{ url_for('static', filename='fotos_perfil/' + (usuario.foto if usuario.foto else 'default_user.png')) }}"
                    alt="Current photo" class="rounded mb-2" width="100" height="100">
               <input type="file" id="foto_perfil" name="foto_perfil" accept="image/*" class="form-control">
@@ -88,10 +88,10 @@
         <!-- ✅ Action buttons -->
         <div class="d-grid gap-2 mt-4">
           <button type="submit" class="btn btn-primary btn-lg">
-            Save Changes
+            Guardar cambios
           </button>
           <button type="button" class="btn btn-secondary btn-lg" onclick="history.back()">
-            Cancel
+            Cancelar
           </button>
         </div>
       </form>
