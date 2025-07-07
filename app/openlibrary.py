@@ -1,8 +1,8 @@
-#openlibrary.py
+# app/openlibrary.py
 
 import requests
 
-# Tabla de mapeo de categorías
+# Tabla de mapeo de categorías (puedes moverla a un archivo config.py si quieres reutilizarla)
 MAPEO_CATEGORIAS = {
     "fiction": "novela",
     "novel": "novela",
@@ -35,11 +35,11 @@ MAPEO_CATEGORIAS = {
     "magical realism": "realismo_magico"
 }
 
-
 def obtener_datos_libro(isbn: str) -> dict | None:
     """
-    Consulta OpenLibrary y devuelve dict con metadatos mapeados.
+    Consulta la API de OpenLibrary para un ISBN y devuelve un dict con metadatos mapeados.
     """
+
     base_url = f"https://openlibrary.org/api/books?bibkeys=ISBN:{isbn}&format=json&jscmd=data"
 
     try:
@@ -54,10 +54,11 @@ def obtener_datos_libro(isbn: str) -> dict | None:
     if not libro:
         return None
 
+    # Campos principales
     titulo = libro.get('title', '')
     autores = ', '.join(a['name'] for a in libro.get('authors', [])) if libro.get('authors') else ''
     editorial = ', '.join(p['name'] for p in libro.get('publishers', [])) if libro.get('publishers') else ''
-    fecha = libro.get('publish_date', None)
+    fecha = libro.get('publish_date', '')
 
     # Descripción
     descripcion = ''
@@ -72,18 +73,20 @@ def obtener_datos_libro(isbn: str) -> dict | None:
     if 'cover' in libro:
         portada_url = libro['cover'].get('large') or libro['cover'].get('medium')
     if not portada_url:
-        portada_url = f"https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg?default=false"
+        # Prueba fallback covers.openlibrary.org
+        fallback_url = f"https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg?default=false"
         try:
-            head_resp = requests.head(portada_url, timeout=5)
-            if not head_resp.ok:
-                portada_url = None
+            head_resp = requests.head(fallback_url, timeout=5)
+            if head_resp.ok:
+                portada_url = fallback_url
         except:
             portada_url = None
 
-    # Edición para subjects extra
+    # Extraer subjects para categorizar
     categoria = "otros"
     edition_key = libro.get('key')
     subjects = []
+
     if edition_key:
         olid = edition_key.split('/')[-1]
         ed_url = f"https://openlibrary.org/books/{olid}.json"
@@ -91,14 +94,17 @@ def obtener_datos_libro(isbn: str) -> dict | None:
             ed_resp = requests.get(ed_url, timeout=5)
             ed_resp.raise_for_status()
             ed_data = ed_resp.json()
+
+            # Descripción alternativa si no vino
             if not descripcion:
                 desc_ed = ed_data.get('description')
                 if isinstance(desc_ed, dict):
                     descripcion = desc_ed.get('value', '')
                 elif isinstance(desc_ed, str):
                     descripcion = desc_ed
+
             subjects = ed_data.get('subjects', [])
-        except:
+        except requests.exceptions.RequestException:
             pass
 
     for s in subjects:
@@ -109,12 +115,12 @@ def obtener_datos_libro(isbn: str) -> dict | None:
 
     return {
         "success": True,
+        "isbn": isbn,
         "titulo": titulo,
         "autor": autores,
         "editorial": editorial,
-        "fecha_publicacion": fecha or '',
-        "isbn": isbn,
-        "portada_url": portada_url or '',
+        "fecha_publicacion": fecha,
         "descripcion": descripcion or '',
+        "portada_url": portada_url or '',
         "categoria": categoria
     }
