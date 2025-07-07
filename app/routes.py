@@ -516,6 +516,10 @@ def agregar_usuario():
     return render_template('registro_fragmento.html', form=form)
 
 # Ruta para registrar un nuevo libro
+from app.openlibrary import obtener_datos_libro
+# Asegúrate de tener la importación correcta según tu estructura
+
+# Ruta para registrar un nuevo libro
 @main.route('/admin/libros/nuevo', methods=['GET', 'POST'])
 @login_required
 @roles_requeridos('administrador', 'bibliotecario')
@@ -523,7 +527,7 @@ def agregar_usuario():
 def nuevo_libro():
     """
     Registra un nuevo libro.
-    Puede autocompletar campos desde la API interna usando ISBN.
+    Puede autocompletar campos usando la función local OpenLibrary.
     Maneja portada local y fallback a portada por URL.
     """
     form = LibroForm()
@@ -531,45 +535,37 @@ def nuevo_libro():
     # Autocompleta datos si viene ISBN como parámetro GET
     isbn_param = request.args.get('isbn')
     if isbn_param and request.method == 'GET':
-        try:
-            api_response = requests.get(url_for('main.api_datos_libro', isbn=isbn_param, _external=True))
-            api_response.raise_for_status()
-            data = api_response.json()
+        data = obtener_datos_libro(isbn_param)  # ✅ Usa la función directa, sin request interno
 
-            if data.get("success"):
-                form.isbn.data = data.get('isbn', '')
-                form.titulo.data = data.get('titulo', '')
-                form.autor.data = data.get('autor', '')
-                form.editorial.data = data.get('editorial', '')
-                form.descripcion.data = data.get('descripcion', '')
-                form.categoria.data = data.get('categoria', '')
+        if data and data.get("success"):
+            form.isbn.data = data.get('isbn', '')
+            form.titulo.data = data.get('titulo', '')
+            form.autor.data = data.get('autor', '')
+            form.editorial.data = data.get('editorial', '')
+            form.descripcion.data = data.get('descripcion', '')
+            form.categoria.data = data.get('categoria', '')
 
-                raw_date = data.get('fecha_publicacion', '')
-                if raw_date:
-                    try:
-                        if len(raw_date) == 4 and raw_date.isdigit():
-                            raw_date = f"{raw_date}-01-01"
-                        elif len(raw_date) == 7:
-                            raw_date = f"{raw_date}-01"
-                        form.fecha_publicacion.data = datetime.strptime(raw_date, '%Y-%m-%d').date()
-                    except ValueError:
-                        form.fecha_publicacion.data = None
-                else:
+            # Normaliza fecha
+            raw_date = data.get('fecha_publicacion', '')
+            if raw_date:
+                try:
+                    if len(raw_date) == 4 and raw_date.isdigit():
+                        raw_date = f"{raw_date}-01-01"
+                    elif len(raw_date) == 7:
+                        raw_date = f"{raw_date}-01"
+                    form.fecha_publicacion.data = datetime.strptime(raw_date, '%Y-%m-%d').date()
+                except ValueError:
                     form.fecha_publicacion.data = None
-
-                form.portada_url.data = data.get('portada_url')
-
             else:
-                flash(f"No se pudieron obtener datos para ISBN {isbn_param}: {data.get('error', 'Error desconocido')}", 'warning')
+                form.fecha_publicacion.data = None
 
-        except requests.exceptions.RequestException as e:
-            flash(f"Error de red al consultar la API interna: {e}", 'danger')
-        except ValueError as e:
-            flash(f"Error al procesar la respuesta de la API interna: {e}", 'danger')
+            form.portada_url.data = data.get('portada_url')
+
+        else:
+            flash(f"No se pudieron obtener datos para ISBN {isbn_param}.", 'warning')
 
     if form.validate_on_submit():
         isbn = form.isbn.data
-
         libro_existente = Libro.query.filter_by(isbn=isbn).first()
         if libro_existente:
             flash('Ya existe un libro con ese ISBN.', 'danger')
