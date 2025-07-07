@@ -274,9 +274,16 @@ class AgregarLectorPresencialForm(FlaskForm):
     def validate_documento(self, documento):
         if Usuario.query.filter_by(documento=documento.data).first():
             raise ValidationError('Ya existe un usuario con este número de documento.')
-
-# Edit Existing User Form
+# editar usuarios 
 class EditarUsuarioForm(FlaskForm):
+    nombre = StringField('Nombre', validators=[DataRequired()])
+    correo = StringField('Correo electrónico', validators=[DataRequired(), Email()])
+    direccion = StringField('Dirección', validators=[DataRequired()])
+    rol = SelectField('Rol', choices=[('lector', 'Lector'), ('bibliotecario', 'Bibliotecario'), ('administrador', 'Administrador')], validators=[DataRequired()])
+    submit = SubmitField('Guardar')
+
+# editar perfil de usuario
+class EditarPerfilUsuarioForm(FlaskForm):
     nombre = StringField('Nombre', validators=[DataRequired(), Length(min=2, max=50)])
     apellido = StringField('Apellido', validators=[Optional(), Length(min=2, max=50)])
     correo = StringField('Correo electrónico', validators=[DataRequired(), Email()])
