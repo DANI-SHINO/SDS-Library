@@ -282,17 +282,3 @@ class EditarUsuarioForm(FlaskForm):
     rol = SelectField('Rol', choices=[('lector', 'Lector'), ('bibliotecario', 'Bibliotecario'), ('administrador', 'Administrador')], validators=[DataRequired()])
     submit = SubmitField('Guardar')
 
-# editar perfil de usuario
-class EditarPerfilUsuarioForm(FlaskForm):
-    nombre = StringField('Nombre', validators=[DataRequired(), Length(min=2, max=50)])
-    apellido = StringField('Apellido', validators=[Optional(), Length(min=2, max=50)])
-    correo = StringField('Correo electrónico', validators=[DataRequired(), Email()])
-    documento = StringField('Número de Documento', validators=[DataRequired(), Length(min=5, max=20)])
-    direccion = StringField('Dirección', validators=[DataRequired(), Length(min=5, max=100)])
-    telefono = StringField('Teléfono', validators=[Optional(), Length(min=7, max=20)])
-    fecha_nacimiento = DateField('Fecha de Nacimiento', format='%Y-%m-%d', validators=[DataRequired()])
-    foto_perfil = FileField(
-        'Foto de Perfil',
-        validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Solo se permiten imágenes JPG y PNG')]
-    )
-    submit = SubmitField('Guardar cambios')
