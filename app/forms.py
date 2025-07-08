@@ -11,6 +11,18 @@ from wtforms.validators import (
 from app.models import Usuario
 from datetime import date
 
+# Validador de tamaño de archivo
+def file_size_limit(max_size_mb=10):
+    def _file_size(form, field):
+        if field.data:
+            field.data.stream.seek(0, 2)  # Ir al final del archivo
+            file_size = field.data.stream.tell()
+            field.data.stream.seek(0)     # Volver al inicio
+            if file_size > max_size_mb * 1024 * 1024:
+                raise ValidationError(f"El archivo no puede superar los {max_size_mb} MB.")
+    return _file_size
+
+
 # User Registration Form
 class RegistroForm(FlaskForm):
     # First name, required, 2-50 chars
@@ -170,7 +182,7 @@ class LibroForm(FlaskForm):
     # Cover image file, only JPG or PNG allowed
     portada = FileField(
         'Portada',
-        validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Solo se permiten imágenes JPG y PNG.')]
+        validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Solo se permiten imágenes JPG y PNG.'), file_size_limit(10) ]
     )
     # Cover URL for saving image path in DB
     portada_url = HiddenField(
@@ -217,7 +229,7 @@ class EditarLibroForm(FlaskForm):
     portada_url = HiddenField('URL de Portada', validators=[Optional()])
     portada = FileField(
         'Portada',
-        validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Solo se permiten imágenes JPG y PNG.')]
+        validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Solo se permiten imágenes JPG y PNG.'), file_size_limit(10) ]
     )
     submit = SubmitField("Guardar cambios")
 
@@ -271,9 +283,12 @@ class AgregarLectorPresencialForm(FlaskForm):
     submit = SubmitField('Registrar')
 
     # Validate document uniqueness
-    def validate_documento(self, documento):
-        if Usuario.query.filter_by(documento=documento.data).first():
-            raise ValidationError('Ya existe un usuario con este número de documento.')
+    def validate_correo(self, correo):
+        try:
+            if Usuario.query.filter_by(correo=correo.data).first():
+                raise ValidationError('Ya existe una cuenta con este correo.')
+        except Exception:
+            raise ValidationError('Error validando el correo. Intenta de nuevo.')
 # editar usuarios 
 class EditarUsuarioForm(FlaskForm):
     nombre = StringField('Nombre', validators=[DataRequired()])
