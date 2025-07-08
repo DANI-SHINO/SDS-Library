@@ -257,8 +257,12 @@ def verificar_token(token, max_age=3600):
 def generar_llave_prestamo():
     for _ in range(1000):
         nueva_llave = f"{random.randint(100, 999)}-{random.randint(100, 999)}"
-        if not Usuario.query.filter_by(llave_prestamo=nueva_llave).first():
-            return nueva_llave
+        try:
+            if not Usuario.query.filter_by(llave_prestamo=nueva_llave).first():
+                return nueva_llave
+        except Exception as e:
+            logging.error(f"Error verificando llave de préstamo única: {str(e)}")
+            raise
     raise Exception("No se pudo generar una llave de préstamo única después de 1000 intentos")
 
 
