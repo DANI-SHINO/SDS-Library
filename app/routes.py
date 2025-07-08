@@ -31,7 +31,7 @@ logging.basicConfig(level=logging.INFO)
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf'}
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024  
 
-def extension_permitida(nombre_archivo):
+def allowed_file(nombre_archivo):
     return '.' in nombre_archivo and \
            nombre_archivo.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 # Decorador para evitar cacheo de páginas
