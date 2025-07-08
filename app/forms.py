@@ -12,7 +12,7 @@ from app.models import Usuario
 from datetime import date
 
 # Validador de tamaño de archivo
-def file_size_limit(max_size_mb=10):
+def file_size_limit(max_size_mb=2):
     def _file_size(form, field):
         if field.data:
             field.data.stream.seek(0, 2)  # Ir al final del archivo
@@ -182,7 +182,7 @@ class LibroForm(FlaskForm):
     # Cover image file, only JPG or PNG allowed
     portada = FileField(
         'Portada',
-        validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Solo se permiten imágenes JPG y PNG.'), file_size_limit(10) ]
+        validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Solo se permiten imágenes JPG y PNG.'), file_size_limit(2) ]
     )
     # Cover URL for saving image path in DB
     portada_url = HiddenField(
@@ -229,7 +229,7 @@ class EditarLibroForm(FlaskForm):
     portada_url = HiddenField('URL de Portada', validators=[Optional()])
     portada = FileField(
         'Portada',
-        validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Solo se permiten imágenes JPG y PNG.'), file_size_limit(10) ]
+        validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Solo se permiten imágenes JPG y PNG.'), file_size_limit(2) ]
     )
     submit = SubmitField("Guardar cambios")
 
