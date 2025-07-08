@@ -1,11 +1,10 @@
 from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
 import random
-import os
 from io import BytesIO
 from app.models import Usuario, Prestamo, Reserva
 from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4, LETTER
+from reportlab.lib.pagesizes import LETTER
 from reportlab.platypus import Table, TableStyle
 from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
@@ -18,6 +17,8 @@ import os
 from reportlab.platypus import (
     SimpleDocTemplate, Paragraph,Indenter, Table, TableStyle, Spacer
 )
+import logging
+logging.basicConfig(level=logging.INFO)
 
 def generar_reporte_con_plantilla(datos, columnas, subtitulo):
     """
@@ -27,25 +28,30 @@ def generar_reporte_con_plantilla(datos, columnas, subtitulo):
     :param subtitulo: título del reporte
     :return: bytes del PDF
     """
-    buffer = BytesIO()
+    try:
+        buffer = BytesIO()
+        plantilla_path = os.path.join(current_app.root_path, 'static', 'imagenes', 'plantilla.jpg')
 
-    plantilla_path = os.path.join(current_app.root_path, 'static', 'imagenes', 'plantilla.jpg')
+        datos_con_numeracion = []
+        for idx, fila in enumerate(datos, 1):
+            datos_con_numeracion.append([idx] + fila)
 
-    datos_con_numeracion = []
-    for idx, fila in enumerate(datos, 1):
-        datos_con_numeracion.append([idx] + fila)
+        ReporteSBS(
+            buffer=buffer,
+            subtitulo=subtitulo,
+            columnas=columnas,
+            datos=datos_con_numeracion,
+            plantilla_fondo=plantilla_path
+        )
 
-    ReporteSBS(
-        buffer=buffer,
-        subtitulo=subtitulo,
-        columnas=columnas,
-        datos=datos_con_numeracion,
-        plantilla_fondo=plantilla_path
-    )
+        pdf = buffer.getvalue()
+        buffer.close()
+        logging.info(f"Reporte PDF '{subtitulo}' generado correctamente.")
+        return pdf
+    except Exception as e:
+        logging.error(f"Error generando reporte PDF '{subtitulo}': {str(e)}")
+        return None
 
-    pdf = buffer.getvalue()
-    buffer.close()
-    return pdf
 
 class FooterCanvas(canvas.Canvas):
     def __init__(self, *args, plantilla_fondo=None, **kwargs):
@@ -189,12 +195,9 @@ def activar_siguiente_reserva(libro):
     Activa la siguiente reserva pendiente para este libro,
     solo si hay ejemplares disponibles.
     """
-
     if libro.cantidad_disponible <= 0:
-        # No hay stock, no se hace nada
         return
 
-    # Trae todas las reservas PENDIENTES en orden de fecha_reserva
     reservas_pendientes = Reserva.query.filter_by(
         libro_id=libro.id,
         estado='pendiente'
@@ -202,24 +205,21 @@ def activar_siguiente_reserva(libro):
 
     if reservas_pendientes:
         siguiente_reserva = reservas_pendientes[0]
-
-        # Activa la primera en la cola
         siguiente_reserva.activar()
         libro.cantidad_disponible -= 1
         libro.actualizar_estado()
 
-        # Recalcula posiciones para los que quedan pendientes
         nuevas_pendientes = reservas_pendientes[1:]
         for idx, reserva in enumerate(nuevas_pendientes, start=1):
             reserva.posicion = idx
 
-        # Envía correo al usuario avisando
-        msg = Message(
-            '¡Tu reserva ahora está ACTIVA!',
-            sender='noreply@biblioteca.com',
-            recipients=[siguiente_reserva.usuario.correo]
-        )
-        msg.body = f"""
+        try:
+            msg = Message(
+                '¡Tu reserva ahora está ACTIVA!',
+                sender='noreply@biblioteca.com',
+                recipients=[siguiente_reserva.usuario.correo]
+            )
+            msg.body = f"""
 Hola {siguiente_reserva.usuario.nombre},
 
 Tu reserva para el libro "{libro.titulo}" ahora está ACTIVA.
@@ -227,29 +227,41 @@ Tienes 7 días para recogerlo, hasta el {siguiente_reserva.fecha_expiracion.strf
 
 ¡No pierdas tu turno!
 
-Biblioteca Avocado 📚
+SDS library
 """
-        mail.send(msg)
+            mail.send(msg)
+            logging.info(f"Correo enviado a {siguiente_reserva.usuario.correo} para reserva activada.")
+        except Exception as e:
+            logging.error(f"No se pudo enviar correo de reserva activada: {str(e)}")
 
 def generar_token(email):
-    serializer = URLSafeTimedSerializer(current_app.secret_key)
-    return serializer.dumps(email, salt='recuperar-contrasena')
+    try:
+        serializer = URLSafeTimedSerializer(current_app.secret_key)
+        token = serializer.dumps(email, salt='recuperar-contrasena')
+        logging.info(f"Token generado para {email}")
+        return token
+    except Exception as e:
+        logging.error(f"Error generando token para {email}: {str(e)}")
+        return None
 
 def verificar_token(token, max_age=3600):
-    serializer = URLSafeTimedSerializer(current_app.secret_key)
     try:
+        serializer = URLSafeTimedSerializer(current_app.secret_key)
         email = serializer.loads(token, salt='recuperar-contrasena', max_age=max_age)
-    except:
+        logging.info(f"Token verificado correctamente para {email}")
+        return email
+    except Exception as e:
+        logging.warning(f"Token inválido o expirado: {str(e)}")
         return None
-    return email
 
 def generar_llave_prestamo():
-    while True:
+    for _ in range(1000):
         nueva_llave = f"{random.randint(100, 999)}-{random.randint(100, 999)}"
         if not Usuario.query.filter_by(llave_prestamo=nueva_llave).first():
             return nueva_llave
+    raise Exception("No se pudo generar una llave de préstamo única después de 1000 intentos")
 
-# app/utils.py
+
 def enviar_recordatorios(app):
     with app.app_context():
         mañana = date.today() + timedelta(days=1)
@@ -262,12 +274,13 @@ def enviar_recordatorios(app):
             usuario = prestamo.usuario
             libro = prestamo.libro
 
-            msg = Message(
-                '⏰ Recordatorio de Devolución',
-                sender='noreply@biblioteca.com',
-                recipients=[usuario.correo]
-            )
-            msg.body = f"""
+            try:
+                msg = Message(
+                    '⏰ Recordatorio de Devolución',
+                    sender='noreply@biblioteca.com',
+                    recipients=[usuario.correo]
+                )
+                msg.body = f"""
 Hola {usuario.nombre},
 
 Te recordamos que debes devolver el libro "{libro.titulo}" mañana.
@@ -276,9 +289,13 @@ Te recordamos que debes devolver el libro "{libro.titulo}" mañana.
 
 ¡Gracias por usar nuestra biblioteca!
 
-Biblioteca Avocado
+Biblioteca SDS library
 """
-            mail.send(msg)
+                mail.send(msg)
+                logging.info(f"Recordatorio enviado a {usuario.correo} para el libro {libro.titulo}.")
+            except Exception as e:
+                logging.warning(f"No se pudo enviar recordatorio a {usuario.correo}: {str(e)}")
+
 
 
 
