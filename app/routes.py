@@ -1380,6 +1380,43 @@ def configuracion():
         logging.error(f"Error en configuracion: {e}")
         flash("Ocurrió un error al actualizar la configuración.", "danger")
         return redirect(url_for('main.configuracion'))
+
+#  RUTA: Catálogo de libros
+@main.route('/catalogo')
+@login_required
+@roles_requeridos('lector', 'administrador', 'bibliotecario')
+@nocache
+def catalogo():
+    # Página actual, por defecto 1
+    page = request.args.get('page', 1, type=int)
+    per_page = 12  # Cantidad de libros por página
+
+    # Consulta libros que no estén eliminados
+    libros = Libro.query.filter(Libro.estado != 'eliminado').paginate(page=page, per_page=per_page)
+
+    # IDs de libros favoritos del usuario lector
+    favoritos_ids = []
+    if current_user.is_authenticated and current_user.rol == 'lector':
+        favoritos_ids = [f.libro_id for f in current_user.favoritos]
+
+    return render_template('catalogo.html', libros=libros, favoritos_ids=favoritos_ids)
+
+# RUTA: Detalle de un libro
+@main.route('/libro/<int:libro_id>')
+@login_required
+@nocache
+def detalle_libro(libro_id):
+    libro = Libro.query.get_or_404(libro_id)
+    es_favorito = False
+
+    # Si es lector, verifica si ya es favorito
+    if current_user.is_authenticated and current_user.rol == 'lector':
+        es_favorito = Favorito.query.filter_by(
+            usuario_id=current_user.id,
+            libro_id=libro.id
+        ).first() is not None
+
+    return render_template('detalle_libro.html', libro=libro, es_favorito=es_favorito)
 # RUTA: Perfil del usuario lector
 @main.route('/perfil', methods=['GET', 'POST'])
 @login_required
@@ -1421,6 +1458,24 @@ def perfil():
         logging.error(f"Error en perfil: {e}")
         flash('Error al actualizar el perfil.', 'danger')
         return redirect(url_for('main.perfil'))
+# RUTA: Mis libros (lector)
+@main.route('/mis_libros')
+@login_required
+@roles_requeridos('lector')
+@nocache
+def mis_libros():
+    # Obtiene préstamos, reservas y favoritos del lector
+    mis_prestamos = Prestamo.query.filter_by(usuario_id=current_user.id).all()
+    mis_reservas = Reserva.query.filter_by(usuario_id=current_user.id).all()
+    mis_favoritos = Favorito.query.filter_by(usuario_id=current_user.id).all()
+
+    return render_template(
+        'mis_libros.html',
+        prestamos=mis_prestamos,
+        reservas=mis_reservas,
+        favoritos=mis_favoritos
+    )
+
 # RUTA: Recuperar contraseña
 @main.route('/recuperar', methods=['GET', 'POST'])
 def recuperar():
