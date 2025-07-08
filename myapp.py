@@ -36,12 +36,12 @@ def create_app():
                 rol='administrador',
                 activo=True
             )
-            admin.set_password('admin123')
+            admin.set_password('Adm1nL1br@2025')
             admin.generar_llave_prestamo()
             db.session.add(admin)
             db.session.commit()
 
-            print("Usuario administrador creado: usuario=admin, contraseña=admin123")
+            print("Usuario administrador creado: usuario=admin, contraseña=Adm1nL1br@2025")
 
     return app
 
