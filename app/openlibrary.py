@@ -1,8 +1,16 @@
 # app/openlibrary.py
-
 import requests
+import logging
 
-# Tabla de mapeo de categorías (puedes moverla a un archivo config.py si quieres reutilizarla)
+# Configura logger para registrar mensajes en lugar de usar print()
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# ======================================================
+# Tabla de mapeo de categorías de OpenLibrary a internas
+# ======================================================
+# Si OpenLibrary devuelve un subject que coincida con una key aquí,
+# se usará la categoría interna como valor de nuestro sistema.
 MAPEO_CATEGORIAS = {
     "fiction": "novela",
     "novel": "novela",
@@ -35,32 +43,44 @@ MAPEO_CATEGORIAS = {
     "magical realism": "realismo_magico"
 }
 
+
 def obtener_datos_libro(isbn: str) -> dict | None:
     """
-    Consulta la API de OpenLibrary para un ISBN y devuelve un dict con metadatos mapeados.
+    Consulta la API de OpenLibrary usando un ISBN
+    y devuelve un diccionario con metadatos mapeados a nuestro sistema.
     """
-
+    # Construir URL base de bibkeys
     base_url = f"https://openlibrary.org/api/books?bibkeys=ISBN:{isbn}&format=json&jscmd=data"
 
     try:
+        # Hacer la petición principal
         resp = requests.get(base_url, timeout=5)
         resp.raise_for_status()
         data = resp.json()
     except requests.exceptions.RequestException as e:
-        print(f"[OpenLibrary] Error en bibkeys: {e}")
-        return None
+        logger.error(f"[OpenLibrary] Error en bibkeys: {e}")
+        return {"success": False, "error": str(e)}
 
     libro = data.get(f"ISBN:{isbn}")
     if not libro:
-        return None
+        # Si no se encuentra información
+        return {"success": False, "error": "Libro no encontrado"}
 
-    # Campos principales
+    # Extraer campos principales: título, autores, editorial, fecha
     titulo = libro.get('title', '')
-    autores = ', '.join(a['name'] for a in libro.get('authors', [])) if libro.get('authors') else ''
-    editorial = ', '.join(p['name'] for p in libro.get('publishers', [])) if libro.get('publishers') else ''
-    fecha = libro.get('publish_date', '')
+    
+    autores = ', '.join(
+        a['name'] for a in libro.get('authors', [])
+    ) if libro.get('authors') else ''
 
-    # Descripción
+    editorial = ', '.join(
+        p['name'] for p in libro.get('publishers', [])
+    ) if libro.get('publishers') else ''
+
+    fecha = libro.get('publish_date', '')
+    
+    # Extraer descripción, si existe
+    # Puede venir como string o dict
     descripcion = ''
     desc_raw = libro.get('description')
     if isinstance(desc_raw, dict):
@@ -68,26 +88,30 @@ def obtener_datos_libro(isbn: str) -> dict | None:
     elif isinstance(desc_raw, str):
         descripcion = desc_raw
 
-    # Portada con fallback
+    # Intentar obtener URL de portada
+    # Si no viene, usar covers.openlibrary.org fallback
     portada_url = None
     if 'cover' in libro:
         portada_url = libro['cover'].get('large') or libro['cover'].get('medium')
+
     if not portada_url:
-        # Prueba fallback covers.openlibrary.org
         fallback_url = f"https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg?default=false"
         try:
+            # Usamos HEAD para verificar si existe sin descargar todo
             head_resp = requests.head(fallback_url, timeout=5)
             if head_resp.ok:
                 portada_url = fallback_url
-        except:
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"[OpenLibrary] Fallback cover error: {e}")
             portada_url = None
-
-    # Extraer subjects para categorizar
+            
+    # Extraer subject para categorizar con fallback
     categoria = "otros"
     edition_key = libro.get('key')
     subjects = []
 
     if edition_key:
+        # Si existe edition key, hacemos segunda consulta
         olid = edition_key.split('/')[-1]
         ed_url = f"https://openlibrary.org/books/{olid}.json"
         try:
@@ -95,7 +119,7 @@ def obtener_datos_libro(isbn: str) -> dict | None:
             ed_resp.raise_for_status()
             ed_data = ed_resp.json()
 
-            # Descripción alternativa si no vino
+            # Si la descripción no vino en la primera llamada, usar esta
             if not descripcion:
                 desc_ed = ed_data.get('description')
                 if isinstance(desc_ed, dict):
@@ -103,16 +127,19 @@ def obtener_datos_libro(isbn: str) -> dict | None:
                 elif isinstance(desc_ed, str):
                     descripcion = desc_ed
 
+            # Extraer subjects
             subjects = ed_data.get('subjects', [])
-        except requests.exceptions.RequestException:
-            pass
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"[OpenLibrary] Subjects fallback error: {e}")
 
+    # Mapear categoría si encontramos coincidencia
     for s in subjects:
         s_lower = s.lower().strip()
         if s_lower in MAPEO_CATEGORIAS:
             categoria = MAPEO_CATEGORIAS[s_lower]
             break
 
+    # Retornar estructura de respuesta
     return {
         "success": True,
         "isbn": isbn,
