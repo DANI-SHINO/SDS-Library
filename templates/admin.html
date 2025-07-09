@@ -126,6 +126,7 @@
           <img src="{{ url_for('static', filename='fotos_perfil/' + (current_user.foto if current_user.foto else 'default_user.png')) }}?v={{ version }}" alt="Profile Photo">
         </div>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+          <li><a class="dropdown-item" href="{{ url_for('main.perfil') }}">Ver Perfil</a></li>
           <li><a class="dropdown-item" href="#" onclick="loadContent('configuracion')">Configuración</a></li>
           <li><a class="dropdown-item" href="{{ url_for('main.catalogo') }}">Catálogo</a></li>
           <li><a class="dropdown-item" href="{{ url_for('main.logout') }}">Cerrar Sesión</a></li>
