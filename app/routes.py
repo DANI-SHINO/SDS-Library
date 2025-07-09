@@ -34,7 +34,11 @@ MAX_CONTENT_LENGTH = 16 * 1024 * 1024
 def allowed_file(nombre_archivo):
     return '.' in nombre_archivo and \
            nombre_archivo.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
+# Obtener catalogo para paginacion 
+def obtener_catalogo(page):
+    per_page = 12
+    libros = Libro.query.filter(Libro.estado != 'eliminado').paginate(page=page, per_page=per_page)
+    return libros
 # Inyecta categorías de libros en el contexto de todas las plantillas
 @main.context_processor
 def inject_categorias():
@@ -170,12 +174,8 @@ def inject_categorias():
 @main.route('/')
 @nocache
 def index():
-    """
-    Renderiza el catálogo público de libros.
-    Si el usuario está autenticado, se pasa su rol.
-    """
     page = request.args.get('page', 1, type=int)
-    libros = Libro.query.filter(Libro.estado != 'eliminado').paginate(page=page, per_page=12)
+    libros = obtener_catalogo(page)
     rol = current_user.rol if current_user.is_authenticated else None
 
     return render_template('index.html', libros=libros, rol=rol)
@@ -379,7 +379,7 @@ def admin_inicio():
 # Vista parcial con datos resumidos para dashboard
 @main.route('/admin/inicio-contenido')
 @login_required
-@roles_requeridos('administrador')
+@roles_requeridos('administrador', 'bibliotecario')
 @nocache
 def inicio_contenido():
     """
@@ -1200,7 +1200,7 @@ def reservas_tabla():
 #  Historial reportes
 @main.route('/admin/reportes/historial')
 @login_required
-@roles_requeridos('administrador')
+@roles_requeridos('administrador', 'bibliotecario')
 @nocache
 def historial_reportes():
     historial = HistorialReporte.query.order_by(
@@ -1210,7 +1210,7 @@ def historial_reportes():
 #  Fragmento atrasados
 @main.route('/admin/reportes/atrasados')
 @login_required
-@roles_requeridos('administrador')
+@roles_requeridos('administrador', 'bibliotecario')
 @nocache
 def reporte_libros_atrasados():
     atrasados = Prestamo.query.filter(
@@ -1270,7 +1270,7 @@ def descargar_reporte_prestados():
 # Reporte populares
 @main.route('/admin/reportes/populares')
 @login_required
-@roles_requeridos('administrador')
+@roles_requeridos('administrador', 'bibliotecario')
 @nocache
 def reporte_libros_populares():
     prestamos_subq = db.session.query(
@@ -1427,14 +1427,9 @@ def configuracion():
 @roles_requeridos('lector', 'administrador', 'bibliotecario')
 @nocache
 def catalogo():
-    # Página actual, por defecto 1
     page = request.args.get('page', 1, type=int)
-    per_page = 12  # Cantidad de libros por página
+    libros = obtener_catalogo(page)
 
-    # Consulta libros que no estén eliminados
-    libros = Libro.query.filter(Libro.estado != 'eliminado').paginate(page=page, per_page=per_page)
-
-    # IDs de libros favoritos del usuario lector
     favoritos_ids = []
     if current_user.is_authenticated and current_user.rol == 'lector':
         favoritos_ids = [f.libro_id for f in current_user.favoritos]
@@ -1579,7 +1574,7 @@ def restablecer(token):
 #  RUTA: Mostrar todos usuarios (modal admin)
 @main.route('/admin/usuarios/mostrar')
 @login_required
-@roles_requeridos('administrador')
+@roles_requeridos('administrador', 'bibliotecario')
 @nocache
 def usuarios_modal():
     usuarios = Usuario.query.all()
@@ -1650,7 +1645,17 @@ def ajax_buscar_usuario_por_llave():
 @roles_requeridos('administrador', 'bibliotecario')
 @nocache
 def mostrar_usuarios_sencillo():
-    usuarios = Usuario.query.all()
+    filtro = request.args.get('filtro')
+
+    if filtro == 'administradores':
+        usuarios = Usuario.query.filter(
+            or_(Usuario.rol == 'administrador', Usuario.rol == 'bibliotecario')
+        ).all()
+    elif filtro == 'lectores':
+        usuarios = Usuario.query.filter_by(rol='lector').all()
+    else:
+        usuarios = Usuario.query.all()
+
     return render_template('usuarios_mostrar_sencillo.html', usuarios=usuarios)
 
 @main.route('/admin/libros/solo_mostrar')
