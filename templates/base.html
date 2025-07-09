@@ -114,7 +114,7 @@
           <ul class="dropdown-menu dropdown-menu-end">
             <li><a class="dropdown-item" href="{{ url_for('main.perfil') }}">Perfil</a></li>
 
-            {% if current_user.rol == 'administrador' %}
+            {% if current_user.rol == 'administrador' or current_user.rol == 'bibliotecario' %}
               <li><a class="dropdown-item" href="{{ url_for('main.inicio') }}">Administración</a></li>
             {% else %}
               <li><a class="dropdown-item" href="{{ url_for('main.mis_libros') }}">
