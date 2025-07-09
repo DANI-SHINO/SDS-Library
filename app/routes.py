@@ -1221,7 +1221,65 @@ def reporte_libros_atrasados():
         Prestamo.fecha_devolucion.is_(None)
     ).all()
     return render_template('reportes/fragmento_atrasados.html', atrasados=atrasados)
-#  Descargar PDF préstamos
+
+@main.route('/admin/reportes/descargar_reporte_atrasados')
+@login_required
+@roles_requeridos('administrador')
+@nocache
+def descargar_reporte_atrasados():
+    """
+    Genera y descarga un PDF con la lista de libros atrasados.
+    Guarda historial de descarga.
+    """
+    atrasados = Prestamo.query.filter(
+        Prestamo.fecha_devolucion_esperada < date.today(),
+        Prestamo.fecha_devolucion.is_(None)
+    ).all()
+
+    datos = []
+    for p in atrasados:
+        datos.append([
+            p.libro.titulo,
+            p.usuario.correo,
+            p.fecha_devolucion_esperada.strftime('%Y-%m-%d')
+        ])
+
+    columnas = ["#", "Libro", "Correo", "Fecha Vencida"]
+
+    pdf = generar_reporte_con_plantilla(datos, columnas, "Reporte de Libros Atrasados")
+
+    nombre_archivo = f"reporte_atrasados_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.pdf"
+    ruta_carpeta = os.path.join(current_app.root_path, 'static', 'archivos')
+    os.makedirs(ruta_carpeta, exist_ok=True)
+    ruta_archivo = os.path.join(ruta_carpeta, nombre_archivo)
+
+    with open(ruta_archivo, 'wb') as f:
+        f.write(pdf)
+
+    historial = HistorialReporte(
+        nombre_reporte="Libros Atrasados",
+        ruta_archivo=f'archivos/{nombre_archivo}',
+        admin_id=current_user.id
+    )
+    db.session.add(historial)
+    db.session.commit()
+
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'inline; filename={nombre_archivo}'
+    return response
+#  Reportes prestados
+@main.route('/admin/reportes/prestados')
+@login_required
+@roles_requeridos('administrador')
+@nocache
+def reporte_libros_prestamos():
+    """
+    Fragmento de tabla de todos los préstamos (devueltos y activos).
+    """
+    prestamos = Prestamo.query.all()
+    return render_template('reportes/fragmento_prestados.html', prestamos=prestamos)
+
 @main.route('/admin/reportes/descargar_reporte_prestados')
 @login_required
 @roles_requeridos('administrador')
