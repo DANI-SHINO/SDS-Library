@@ -1759,3 +1759,24 @@ def buscar():
 def categoria(categoria):
     libros = Libro.query.filter_by(categoria=categoria).all()
     return render_template('categoria.html', libros=libros, categoria=categoria)
+
+@main.route('/favoritos/toggle/<int:libro_id>', methods=['POST'])
+@login_required
+@roles_requeridos('lector')
+@nocache
+def toggle_favorito(libro_id):
+    libro = Libro.query.get_or_404(libro_id)
+    favorito = Favorito.query.filter_by(usuario_id=current_user.id, libro_id=libro.id).first()
+
+    if favorito:
+        # Si ya es favorito, lo elimina
+        db.session.delete(favorito)
+        flash('Libro eliminado de tus favoritos.', 'info')
+    else:
+        # Si no es favorito, lo añade
+        nuevo_favorito = Favorito(usuario_id=current_user.id, libro_id=libro.id)
+        db.session.add(nuevo_favorito)
+        flash('Libro añadido a tus favoritos.', 'success')
+
+    db.session.commit()
+    return redirect(url_for('main.detalle_libro', libro_id=libro.id))
