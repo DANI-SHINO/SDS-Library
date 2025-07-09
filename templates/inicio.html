@@ -17,8 +17,9 @@
 
   <!-- ✅ MAIN CONTAINER WITHOUT NAVBAR -->
   <div class="dashboard-container">
-    <!-- ✅ Card: Administrators -->
-    <a href="{{ url_for('main.mostrar_usuarios_sencillo') }}" class="small-box text-decoration-none">
+
+    <!-- ✅ Card: Administradores y Bibliotecarios -->
+    <a href="{{ url_for('main.mostrar_usuarios_sencillo', filtro='administradores') }}" class="small-box text-decoration-none">
       <div class="inner">
         <h3 id="total-administradores">{{ total_administradores or 0 }}</h3>
         <p>Administradores</p>
@@ -26,8 +27,8 @@
       <div class="icon"><i class="fas fa-user-shield"></i></div>
     </a>
 
-    <!-- ✅ Card: Readers -->
-    <a href="{{ url_for('main.mostrar_usuarios_sencillo') }}" class="small-box text-decoration-none">
+    <!-- ✅ Card: Lectores -->
+    <a href="{{ url_for('main.mostrar_usuarios_sencillo', filtro='lectores') }}" class="small-box text-decoration-none">
       <div class="inner">
         <h3 id="total-lectores">{{ total_lectores or 0 }}</h3>
         <p>Lectores</p>
