@@ -5,6 +5,9 @@ from app.routes import main
 from app.config import Config
 from app.utils import enviar_recordatorios
 from datetime import datetime
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 def create_app():
     app = Flask(__name__)
@@ -16,14 +19,18 @@ def create_app():
 
     @login_manager.user_loader
     def load_user(user_id):
-        return Usuario.query.get(int(user_id))
+        return db.session.get(Usuario, int(user_id))
 
     app.register_blueprint(main)
 
     with app.app_context():
-        # ¡IMPORTANTE! Crea todas las tablas si no existen
-        db.create_all()
+        # Protege creación de tablas con try/except
+        try:
+            db.create_all()
+        except Exception as e:
+            logging.error(f"Error creando tablas: {e}")
 
+        # Solo crea admin si no existe
         if not Usuario.query.filter_by(rol='administrador').first():
             admin = Usuario(
                 nombre='admin',
@@ -36,17 +43,27 @@ def create_app():
                 rol='administrador',
                 activo=True
             )
+            # Contraseña robusta
             admin.set_password('Adm1nL1br@2025')
             admin.generar_llave_prestamo()
-            db.session.add(admin)
-            db.session.commit()
 
-            print("Usuario administrador creado: usuario=admin, contraseña=Adm1nL1br@2025")
+            try:
+                db.session.add(admin)
+                db.session.commit()
+                logging.info("Usuario administrador creado correctamente.")
+            except Exception as e:
+                db.session.rollback()
+                logging.error(f"Error creando admin: {e}")
 
     return app
 
 
 if __name__ == '__main__':
     app = create_app()
-    enviar_recordatorios(app)
+    # ✅ Maneja posibles errores de conexión de correo
+    try:
+        enviar_recordatorios(app)
+    except Exception as e:
+        logging.warning(f"Error enviando recordatorios: {e}")
+
     app.run(debug=True)
