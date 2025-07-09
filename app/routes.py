@@ -1224,7 +1224,7 @@ def reporte_libros_atrasados():
 
 @main.route('/admin/reportes/descargar_reporte_atrasados')
 @login_required
-@roles_requeridos('administrador')
+@roles_requeridos('administrador', 'bibliotecario')
 @nocache
 def descargar_reporte_atrasados():
     """
@@ -1271,7 +1271,7 @@ def descargar_reporte_atrasados():
 #  Reportes prestados
 @main.route('/admin/reportes/prestados')
 @login_required
-@roles_requeridos('administrador')
+@roles_requeridos('administrador','bibliotecario')
 @nocache
 def reporte_libros_prestamos():
     """
@@ -1282,7 +1282,7 @@ def reporte_libros_prestamos():
 
 @main.route('/admin/reportes/descargar_reporte_prestados')
 @login_required
-@roles_requeridos('administrador')
+@roles_requeridos('administrador','bibliotecario')
 @nocache
 def descargar_reporte_prestados():
     prestamos = Prestamo.query.all()
@@ -1359,7 +1359,7 @@ def reporte_libros_populares():
     
 @main.route('/admin/reportes/descargar_reporte_populares')
 @login_required
-@roles_requeridos('administrador')
+@roles_requeridos('administrador','bibliotecario')
 @nocache
 def descargar_reporte_populares():
     """
