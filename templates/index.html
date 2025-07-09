@@ -162,7 +162,7 @@
     <h2 class="mb-4 text-accent">Catálogo de Libros</h2>
     <div class="row">
       {% if libros %}
-        {% for libro in libros %}
+        {% for libro in libros.items %}
           <div class="col-md-4 col-lg-3 mb-4">
             <div class="card h-100 shadow-sm border-0 position-relative card-hover">
               <img src="{{ libro.portada_url if libro.portada_url else url_for('static', filename='imagenes/portada_default.png') }}"
@@ -217,6 +217,55 @@
         </div>
       {% endif %}
     </div>
+
+    <!-- ✅ Paginación -->
+    {% if libros.pages > 1 %}
+      <nav aria-label="Paginación de libros">
+        <ul class="pagination justify-content-center">
+          {% if libros.has_prev %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ libros.prev_num }}" aria-label="Anterior">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">&laquo;</span>
+            </li>
+          {% endif %}
+
+          {% for page_num in libros.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if page_num %}
+              {% if page_num == libros.page %}
+                <li class="page-item active">
+                  <span class="page-link">{{ page_num }}</span>
+                </li>
+              {% else %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                </li>
+              {% endif %}
+            {% else %}
+              <li class="page-item disabled">
+                <span class="page-link">…</span>
+              </li>
+            {% endif %}
+          {% endfor %}
+
+          {% if libros.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ libros.next_num }}" aria-label="Siguiente">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">&raquo;</span>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
   </main>
 
   <!-- ✅ Footer -->
