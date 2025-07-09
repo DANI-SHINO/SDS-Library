@@ -40,6 +40,21 @@ def obtener_catalogo(page):
     libros = Libro.query.filter(Libro.estado != 'eliminado').paginate(page=page, per_page=per_page)
     return libros
 # Inyecta categorías de libros en el contexto de todas las plantillas
+
+# Decorador para evitar cacheo de páginas
+def nocache(view):
+    @wraps(view)
+    def no_cache(*args, **kwargs):
+        response = make_response(view(*args, **kwargs))
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        return response
+    return no_cache
+# Definición del Blueprint principal
+main = Blueprint('main', __name__)
+login_manager.login_view = 'main.login'
+
 @main.context_processor
 def inject_categorias():
     """
@@ -78,19 +93,7 @@ def inject_categorias():
     }
     categorias = sorted(set(mapeo_categorias.values()))
     return dict(categorias=categorias)
-# Decorador para evitar cacheo de páginas
-def nocache(view):
-    @wraps(view)
-    def no_cache(*args, **kwargs):
-        response = make_response(view(*args, **kwargs))
-        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0"
-        response.headers["Pragma"] = "no-cache"
-        response.headers["Expires"] = "0"
-        return response
-    return no_cache
-# Definición del Blueprint principal
-main = Blueprint('main', __name__)
-login_manager.login_view = 'main.login'
+    
 # Decorador para restringir acceso por roles
 def roles_requeridos(*roles):
     """
