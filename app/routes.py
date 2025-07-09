@@ -162,17 +162,6 @@ def marcar_prestamos_atrasados():
         except Exception as e:
             db.session.rollback()
             logging.error(f"Error marcando préstamos atrasados: {e}")
-# Inyecta categorías de libros en el contexto de todas las plantillas
-@main.context_processor
-def inject_categorias():
-    """
-    Mapea categorías externas a internas y devuelve lista única.
-    """
-    mapeo_categorias = {
-        # ...
-    }
-    categorias = sorted(set(mapeo_categorias.values()))
-    return dict(categorias=categorias)
 # Página principal del catálogo público
 @main.route('/')
 @nocache
