@@ -34,6 +34,46 @@ MAX_CONTENT_LENGTH = 16 * 1024 * 1024
 def allowed_file(nombre_archivo):
     return '.' in nombre_archivo and \
            nombre_archivo.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# Inyecta categorías de libros en el contexto de todas las plantillas
+@main.context_processor
+def inject_categorias():
+    """
+    Mapea categorías externas a internas y devuelve lista única.
+    """
+    mapeo_categorias = {
+        "fiction": "novela",
+        "novel": "novela",
+        "detective and mystery stories": "novela",
+        "police procedural": "thriller",
+        "science fiction": "ciencia_ficcion",
+        "fantasy": "fantasía",
+        "thrillers": "thriller",
+        "horror": "terror",
+        "romance": "romance",
+        "historical fiction": "novela_historica",
+        "history": "historia",
+        "biography": "biografia",
+        "short stories": "cuento",
+        "poetry": "poesia",
+        "drama": "teatro",
+        "comedies": "comedia",
+        "juvenile fiction": "juvenil",
+        "young adult fiction": "juvenil",
+        "graphic novels": "historieta",
+        "comics": "historieta",
+        "philosophy": "filosofia",
+        "essays": "ensayo",
+        "true crime": "ficcion_criminal",
+        "crime fiction": "ficcion_criminal",
+        "political satire": "sátira",
+        "satire": "sátira",
+        "classic fiction": "clasico",
+        "classic literature": "clasico",
+        "magical realism": "realismo_magico"
+    }
+    categorias = sorted(set(mapeo_categorias.values()))
+    return dict(categorias=categorias)
 # Decorador para evitar cacheo de páginas
 def nocache(view):
     @wraps(view)
