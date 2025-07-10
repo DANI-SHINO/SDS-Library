@@ -11,7 +11,7 @@ from flask_mail import Message
 from functools import wraps
 from datetime import datetime, timedelta, date
 from werkzeug.utils import secure_filename
-from sqlalchemy import extract, func, case
+from sqlalchemy import extract, func, case, or_
 from time import time
 import requests
 # Extensiones y modelos de la aplicación
