@@ -21,7 +21,11 @@
     .carousel-track {
       display: flex;
       width: max-content;
-      animation: scroll-categorias 60s linear infinite;
+      animation: scroll-categorias 120s linear infinite;
+      nimation-play-state: running;
+    }
+    .carousel-categorias:hover .carousel-track {
+      animation-play-state: paused;
     }
 
     .categoria-item {
