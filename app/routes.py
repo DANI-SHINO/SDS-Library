@@ -506,24 +506,25 @@ def editar_usuario(id):
 @nocache
 def eliminar_usuario(id):
     """
-    Marca un usuario como inactivo. 
+    Marca un usuario como inactivo.
     Protege contra la eliminación del administrador principal.
     """
     usuario = Usuario.query.get_or_404(id)
 
     if usuario.id == 1:
         logging.warning("Intento de eliminar al superadmin bloqueado.")
-        return jsonify({"error": "No se puede eliminar el administrador principal"}), 403
+        return jsonify({"success": False, "error": "No se puede eliminar el administrador principal"}), 403
 
     usuario.activo = False
     try:
         db.session.commit()
         logging.info(f"Usuario {id} marcado como inactivo.")
-        return jsonify({"mensaje": "Usuario eliminado"})
+        return jsonify({"success": True, "mensaje": "Usuario eliminado correctamente"}), 200
     except Exception as e:
         db.session.rollback()
         logging.error(f"Error eliminando usuario {id}: {e}")
-        return jsonify({"error": "Error al eliminar usuario"}), 500
+        return jsonify({"success": False, "error": "Error al eliminar usuario"}), 500
+
 # Ruta para agregar nuevo lector presencial (administrador o bibliotecario)
 @main.route('/admin/usuarios/agregar', methods=['GET', 'POST'])
 @login_required
