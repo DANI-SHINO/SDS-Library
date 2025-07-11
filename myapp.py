@@ -5,6 +5,7 @@ from app.routes import main
 from app.config import Config
 from app.utils import enviar_recordatorios
 from datetime import datetime
+import os
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -24,14 +25,19 @@ def create_app():
     app.register_blueprint(main)
 
     with app.app_context():
-        # Protege creación de tablas con try/except
         try:
             db.create_all()
+            logging.info("Tablas creadas correctamente.")
         except Exception as e:
             logging.error(f"Error creando tablas: {e}")
 
         # Solo crea admin si no existe
         if not Usuario.query.filter_by(rol='administrador').first():
+            admin_password = os.environ.get('ADMIN_PASSWORD')
+
+            if not admin_password:
+                logging.warning("ADMIN_PASSWORD no definida en variables de entorno. Usando contraseña por defecto temporal.")
+
             admin = Usuario(
                 nombre='admin',
                 apellido='admin',
@@ -43,8 +49,7 @@ def create_app():
                 rol='administrador',
                 activo=True
             )
-            # Contraseña robusta
-            admin.set_password('Adm1nL1br@2025')
+            admin.set_password(admin_password)
             admin.generar_llave_prestamo()
 
             try:
@@ -53,17 +58,16 @@ def create_app():
                 logging.info("Usuario administrador creado correctamente.")
             except Exception as e:
                 db.session.rollback()
-                logging.error(f"Error creando admin: {e}")
+                logging.error(f"Error creando usuario admin: {e}")
+
+        try:
+            enviar_recordatorios(app)
+        except Exception as e:
+            logging.warning(f"Error enviando recordatorios: {e}")
 
     return app
 
 
 if __name__ == '__main__':
     app = create_app()
-    # ✅ Maneja posibles errores de conexión de correo
-    try:
-        enviar_recordatorios(app)
-    except Exception as e:
-        logging.warning(f"Error enviando recordatorios: {e}")
-
     app.run(debug=True)
