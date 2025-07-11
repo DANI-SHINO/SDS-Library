@@ -104,10 +104,18 @@
   <!-- ✅ Confirm before submitting -->
   <script>
     document.getElementById('perfilForm').addEventListener('submit', function(event) {
-      if (!confirm('Are you sure you want to save the changes?')) {
+      if (!confirm('¿Estas seguro que deseas guardar cambios?')) {
         event.preventDefault();
       }
     });
   </script>
+
+  <!-- ✅ Mostrar mensaje si existe -->
+   {% if session.get('mensaje') %}
+   <script>
+      alert("{{ session['mensaje'] }}");
+   </script>
+      {% set _ = session.pop('mensaje') %}
+    {% endif %}
 </body>
 </html>

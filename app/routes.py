@@ -491,19 +491,18 @@ def editar_usuario(id):
 
         try:
             db.session.commit()
-            flash("Usuario actualizado correctamente.", "success")
+            session['mensaje'] = "Usuario actualizado correctamente."
             logging.info(f"Usuario {id} actualizado correctamente.")
+            return redirect(url_for('main.editar_formulario_usuario', id=id))
         except Exception as e:
             db.session.rollback()
-            flash("Error al actualizar usuario.", "danger")
+            session['mensaje'] = "Error al actualizar usuario."
             logging.error(f"Error actualizando usuario {id}: {e}")
+            return redirect(url_for('main.editar_formulario_usuario', id=id))
 
-        return redirect(url_for('main.mostrar_usuarios'))
-    else:
-        flash("Error al validar el formulario.", "danger")
-        logging.warning(f"Errores de validación en formulario de usuario {id}: {form.errors}")
-
-    return redirect(url_for('main.mostrar_usuarios'))
+    session['mensaje'] = "Error al validar el formulario."
+    logging.warning(f"Errores de validación en formulario de usuario {id}: {form.errors}")
+    return redirect(url_for('main.editar_formulario_usuario', id=id))
 # Ruta para eliminar un usuario
 @main.route("/admin/usuarios/eliminar/<int:id>", methods=["POST"])
 @login_required
@@ -576,21 +575,15 @@ def agregar_usuario():
         return jsonify({"success": False, "mensaje": "Errores de validación.", "errores": form.errors})
 
     return render_template('registro_fragmento.html', form=form)
-# Ruta para registrar un nuevo libro
+# Ruta para agregar libros
 @main.route('/admin/libros/nuevo', methods=['GET', 'POST'])
 @login_required
 @roles_requeridos('administrador', 'bibliotecario')
 @nocache
 def nuevo_libro():
-    """
-    Registra un nuevo libro.
-    Autocompleta datos usando OpenLibrary.
-    Valida y guarda portada.
-    """
     form = LibroForm()
     MAX_FILE_SIZE = 2 * 1024 * 1024  # 2 MB
 
-    # Autocompleta por ISBN
     isbn_param = request.args.get('isbn')
     if isbn_param and request.method == 'GET':
         data = obtener_datos_libro(isbn_param)
@@ -617,12 +610,13 @@ def nuevo_libro():
 
             form.portada_url.data = data.get('portada_url')
         else:
-            flash(f"No se pudieron obtener datos para ISBN {isbn_param}.", 'warning')
+            session['mensaje'] = f"No se pudieron obtener datos para ISBN {isbn_param}."
+            return redirect(url_for('main.nuevo_libro'))
 
     if form.validate_on_submit():
         isbn = form.isbn.data
         if Libro.query.filter_by(isbn=isbn).first():
-            flash('Ya existe un libro con ese ISBN.', 'danger')
+            session['mensaje'] = 'Ya existe un libro con ese ISBN.'
             return redirect(url_for('main.nuevo_libro'))
 
         cantidad_total = form.cantidad_total.data or 0
@@ -631,12 +625,12 @@ def nuevo_libro():
 
         if portada_file:
             if portada_file.content_length and portada_file.content_length > MAX_FILE_SIZE:
-                flash("El archivo de portada excede el tamaño permitido (2 MB).", "danger")
+                session['mensaje'] = "El archivo de portada excede el tamaño permitido (2 MB)."
                 return redirect(url_for('main.nuevo_libro'))
 
             ext = os.path.splitext(portada_file.filename)[1].lower()
             if ext not in ['.png', '.jpg', '.jpeg']:
-                flash("Formato de archivo no permitido. Usa PNG o JPG.", "danger")
+                session['mensaje'] = "Formato de archivo no permitido. Usa PNG o JPG."
                 return redirect(url_for('main.nuevo_libro'))
 
             filename = secure_filename(portada_file.filename)
@@ -664,11 +658,11 @@ def nuevo_libro():
             db.session.add(nuevo_libro)
             db.session.commit()
             logging.info(f"Libro {isbn} registrado correctamente.")
-            flash('Libro creado exitosamente.', 'success')
+            session['mensaje'] = 'Libro creado exitosamente.'
         except Exception as e:
             db.session.rollback()
             logging.error(f"Error registrando libro {isbn}: {e}")
-            flash('Error al registrar libro.', 'danger')
+            session['mensaje'] = 'Error al registrar libro.'
 
         return redirect(url_for('main.mostrar_libros'))
 
@@ -692,7 +686,7 @@ def eliminar_libro(libro_id):
 
     if libro.cantidad_disponible < libro.cantidad_total:
         flash('No se puede eliminar: hay ejemplares prestados.', 'danger')
-        return redirect(url_for('main.admin_libros'))
+        return redirect(url_for('main.mostrar_libros'))
 
     libro.marcar_como_eliminado()
     try:
@@ -704,7 +698,7 @@ def eliminar_libro(libro_id):
         logging.error(f"Error al eliminar libro {libro_id}: {e}")
         flash('Error al eliminar libro.', 'danger')
 
-    return redirect(url_for('main.admin_libros'))
+    return redirect(url_for('main.mostrar_libros'))
 # Editar libro
 @main.route('/admin/libros/editar/<int:libro_id>', methods=['GET', 'POST'])
 @login_required
@@ -1450,9 +1444,6 @@ def descargar_reporte_populares():
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = f'attachment; filename={nombre_archivo}'
     return response
-
-
-
 # RUTA: Configuración admin
 @main.route('/admin/configuracion', methods=['GET', 'POST'])
 @login_required
@@ -1476,13 +1467,13 @@ def configuracion():
 
             if archivo and archivo.filename != '':
                 if not allowed_file(archivo.filename):
-                    flash("Tipo de archivo no permitido.", "danger")
+                    session['mensaje'] = "Tipo de archivo no permitido."
                     return redirect(request.url)
 
                 if len(archivo.read()) > MAX_CONTENT_LENGTH:
-                    flash("El archivo es demasiado grande.", "danger")
+                    session['mensaje'] = "El archivo es demasiado grande."
                     return redirect(request.url)
-                archivo.seek(0)  # Volver a inicio del archivo
+                archivo.seek(0)
 
                 filename = secure_filename(archivo.filename)
                 extension = os.path.splitext(filename)[1]
@@ -1490,10 +1481,9 @@ def configuracion():
                 ruta_guardado = os.path.join(current_app.root_path, 'static', 'fotos_perfil', nuevo_nombre)
                 archivo.save(ruta_guardado)
                 usuario.foto = f"fotos_perfil/{nuevo_nombre}"
-
-                flash("Foto de perfil actualizada con éxito", "success")
+                session['mensaje'] = "Foto de perfil actualizada con éxito"
             else:
-                flash("Perfil actualizado con éxito", "success")
+                session['mensaje'] = "Perfil actualizado con éxito"
 
             db.session.commit()
             logging.info(f"Usuario {usuario.id} actualizó su configuración")
@@ -1503,7 +1493,7 @@ def configuracion():
 
     except Exception as e:
         logging.error(f"Error en configuracion: {e}")
-        flash("Ocurrió un error al actualizar la configuración.", "danger")
+        session['mensaje'] = "Ocurrió un error al actualizar la configuración."
         return redirect(url_for('main.configuracion'))
 
 #  RUTA: Catálogo de libros
