@@ -858,6 +858,7 @@ def reservar_libro_lector(libro_id):
         if libro.cantidad_disponible > 0:
             nueva_reserva = Reserva(
                 usuario_id=current_user.id,
+                fecha_expiracion=date.today() + timedelta(days=7),
                 libro_id=libro.id,
                 estado='activa'
             )
