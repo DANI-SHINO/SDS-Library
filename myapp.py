@@ -5,14 +5,10 @@ from app.routes import main
 from app.config import Config
 from app.utils import enviar_recordatorios
 from datetime import datetime
-from dotenv import load_dotenv
 import os
 import logging
 
 logging.basicConfig(level=logging.INFO)
-
-# ✅ Cargar variables de entorno
-load_dotenv()
 
 def create_app():
     app = Flask(__name__)
