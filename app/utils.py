@@ -21,26 +21,17 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 def generar_reporte_con_plantilla(datos, columnas, subtitulo):
-    """
-    Genera un PDF usando la plantilla base.
-    :param datos: lista de filas [[col1, col2, ...], ...]
-    :param columnas: lista de encabezados ["#", "Libro", ...]
-    :param subtitulo: título del reporte
-    :return: bytes del PDF
-    """
     try:
         buffer = BytesIO()
-        plantilla_path = os.path.join(current_app.root_path, 'static', 'imagenes', 'plantilla.jpg')
-
-        datos_con_numeracion = []
-        for idx, fila in enumerate(datos, 1):
-            datos_con_numeracion.append([idx] + fila)
+        plantilla_path = os.path.join(
+            current_app.root_path, 'static', 'imagenes', 'plantilla.jpg'
+        )
 
         ReporteSBS(
             buffer=buffer,
             subtitulo=subtitulo,
             columnas=columnas,
-            datos=datos_con_numeracion,
+            datos=datos,  # ya con numeración si aplica
             plantilla_fondo=plantilla_path
         )
 
@@ -116,13 +107,14 @@ class ReporteSBS:
         # - fontSize: más pequeño (24)
         # - textColor: azul oscuro más visible
         # - spaceAfter: controla la distancia hacia el subtítulo
-        titulo_style = ParagraphStyle(
-            'Titulo',
-            fontSize=24,  # Tamaño más pequeño
-            alignment=TA_LEFT,
-            textColor=colors.HexColor("#F5F5F5"),  # Azul oscuro más visible
-            spaceAfter=15  # Espacio debajo del título
-        )
+
+      # titulo_style = ParagraphStyle(
+      #     'Titulo',
+      #     fontSize=24,  # Tamaño más pequeño
+      #     alignment=TA_LEFT,
+      #     textColor=colors.HexColor("#F5F5F5"),  # Azul oscuro más visible
+      #     spaceAfter=15  # Espacio debajo del título
+      # )
 
         # SUBTÍTULO
         # - fontSize: lo mantienes

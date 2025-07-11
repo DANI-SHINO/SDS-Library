@@ -21,7 +21,7 @@ from app.openlibrary import obtener_datos_libro
 from app.forms import (
     RegistroForm, LibroForm, EditarLibroForm, EditarReservaForm,
     NuevaReservaForm, PrestamoForm, ReservaLectorForm,
-    AgregarLectorPresencialForm, EditarUsuarioForm
+    AgregarLectorPresencialForm, EditarUsuarioForm, LoginForm
 )
 from app.utils import (
     verificar_token, generar_token, generar_reporte_con_plantilla,
@@ -226,47 +226,52 @@ def registro():
     return render_template('registro.html', form=form)
 
 # Ruta de inicio de sesión
+# routes.py
+
 @main.route('/login', methods=['GET', 'POST'])
 @nocache
 def login():
     """
-    Inicia sesión de usuario y redirige según el rol.
+    Inicia sesión de usuario y muestra errores claros en el formulario.
     """
     if current_user.is_authenticated:
+        # Redirigir según rol si ya está logueado
         if current_user.rol == 'administrador':
             return redirect(url_for('main.inicio'))
         elif current_user.rol == 'bibliotecario':
             return redirect(url_for('main.inicio'))
         elif current_user.rol == 'lector':
             return redirect(url_for('main.catalogo'))
-        else:
-            return redirect(url_for('main.index'))
+        return redirect(url_for('main.index'))
 
-    if request.method == 'POST':
-        correo = request.form['correo']
-        password = request.form['password']
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        correo = form.correo.data
+        password = form.password.data
 
         usuario = Usuario.query.filter_by(correo=correo, activo=True).first()
 
-        if usuario and usuario.check_password(password):
+        if usuario is None:
+            form.correo.errors.append('Correo no registrado o inactivo.')
+        elif not usuario.check_password(password):
+            form.password.errors.append('Contraseña incorrecta.')
+        else:
             login_user(usuario)
-            logging.info(f"Usuario {correo} inició sesión.")
+            logging.info(f"Usuario {correo} inició sesión correctamente.")
             flash('Has iniciado sesión.', 'success')
 
             if usuario.rol == 'administrador':
-                return redirect(url_for('main.inicio', status='in', rol=usuario.rol))
+                return redirect(url_for('main.inicio'))
             elif usuario.rol == 'bibliotecario':
-                return redirect(url_for('main.inicio', status='in', rol=usuario.rol))
+                return redirect(url_for('main.inicio'))
             elif usuario.rol == 'lector':
-                return redirect(url_for('main.catalogo', status='in', rol=usuario.rol))
+                return redirect(url_for('main.catalogo'))
             else:
-                return redirect(url_for('main.index', status='in', rol=usuario.rol))
+                return redirect(url_for('main.index'))
 
-        flash('Correo o contraseña incorrectos', 'danger')
-        logging.warning(f"Intento de login fallido para correo: {correo}")
-        return redirect(url_for('main.login'))
+    return render_template('login.html', form=form)
 
-    return render_template('login.html')
 
 # Cierra sesión de usuario
 @main.route('/logout')
@@ -409,7 +414,7 @@ def api_datos_libro(isbn):
 # API para datos estadísticos del dashboard
 @main.route('/api/dashboard_data')
 @login_required
-@roles_requeridos('administrador')
+@roles_requeridos('administrador', 'bibliotecario')
 @nocache
 def dashboard_data():
     """
@@ -1190,6 +1195,7 @@ def prestar_reserva(reserva_id):
 def reservas_tabla():
     reservas = Reserva.query.filter(Reserva.estado != 'eliminada').all()
     return render_template('reservas_tabla.html', reservas=reservas)
+
 #  Historial reportes
 @main.route('/admin/reportes/historial')
 @login_required
@@ -1200,6 +1206,7 @@ def historial_reportes():
         HistorialReporte.fecha_generacion.desc()
     ).all()
     return render_template('reportes/historial_reportes.html', historial=historial)
+
 #  Fragmento atrasados
 @main.route('/admin/reportes/atrasados')
 @login_required
@@ -1218,8 +1225,8 @@ def reporte_libros_atrasados():
 @nocache
 def descargar_reporte_atrasados():
     """
-    Genera y descarga un PDF con la lista de libros atrasados.
-    Guarda historial de descarga.
+    Genera y descarga un PDF de libros atrasados.
+    Registra historial solo en descargas reales.
     """
     atrasados = Prestamo.query.filter(
         Prestamo.fecha_devolucion_esperada < date.today(),
@@ -1227,8 +1234,9 @@ def descargar_reporte_atrasados():
     ).all()
 
     datos = []
-    for p in atrasados:
+    for idx, p in enumerate(atrasados, start=1):
         datos.append([
+            idx,
             p.libro.titulo,
             p.usuario.correo,
             p.fecha_devolucion_esperada.strftime('%Y-%m-%d')
@@ -1237,27 +1245,35 @@ def descargar_reporte_atrasados():
     columnas = ["#", "Libro", "Correo", "Fecha Vencida"]
 
     pdf = generar_reporte_con_plantilla(datos, columnas, "Reporte de Libros Atrasados")
-
     nombre_archivo = f"reporte_atrasados_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.pdf"
     ruta_carpeta = os.path.join(current_app.root_path, 'static', 'archivos')
     os.makedirs(ruta_carpeta, exist_ok=True)
     ruta_archivo = os.path.join(ruta_carpeta, nombre_archivo)
 
-    with open(ruta_archivo, 'wb') as f:
-        f.write(pdf)
+    try:
+        with open(ruta_archivo, 'wb') as f:
+            f.write(pdf)
 
-    historial = HistorialReporte(
-        nombre_reporte="Libros Atrasados",
-        ruta_archivo=f'archivos/{nombre_archivo}',
-        admin_id=current_user.id
-    )
-    db.session.add(historial)
-    db.session.commit()
+        historial = HistorialReporte(
+            nombre_reporte="Libros Atrasados",
+            ruta_archivo=f'archivos/{nombre_archivo}',
+            admin_id=current_user.id
+        )
+        db.session.add(historial)
+        db.session.commit()
+        logging.info(f"[Historial] Reporte atrasados guardado: {nombre_archivo}")
+
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error guardando historial atrasados: {e}")
+        flash('Error al guardar historial del reporte.', 'danger')
 
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'inline; filename={nombre_archivo}'
+    response.headers['Content-Disposition'] = f'attachment; filename={nombre_archivo}'
     return response
+
+
 #  Reportes prestados
 @main.route('/admin/reportes/prestados')
 @login_required
@@ -1272,9 +1288,13 @@ def reporte_libros_prestamos():
 
 @main.route('/admin/reportes/descargar_reporte_prestados')
 @login_required
-@roles_requeridos('administrador','bibliotecario')
+@roles_requeridos('administrador', 'bibliotecario')
 @nocache
 def descargar_reporte_prestados():
+    """
+    Genera y descarga un PDF de libros prestados.
+    Registra historial solo en descargas reales.
+    """
     prestamos = Prestamo.query.all()
     datos = []
     for idx, p in enumerate(prestamos, start=1):
@@ -1289,13 +1309,13 @@ def descargar_reporte_prestados():
 
     columnas = ["#", "Libro", "Correo", "Fecha Préstamo", "Fecha Devolución"]
 
-    try:
-        pdf = generar_reporte_con_plantilla(datos, columnas, "Reporte de Libros Prestados")
-        nombre_archivo = f"reporte_prestados_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.pdf"
-        ruta_carpeta = os.path.join(current_app.root_path, 'static', 'archivos')
-        os.makedirs(ruta_carpeta, exist_ok=True)
-        ruta_archivo = os.path.join(ruta_carpeta, nombre_archivo)
+    pdf = generar_reporte_con_plantilla(datos, columnas, "Reporte de Libros Prestados")
+    nombre_archivo = f"reporte_prestados_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.pdf"
+    ruta_carpeta = os.path.join(current_app.root_path, 'static', 'archivos')
+    os.makedirs(ruta_carpeta, exist_ok=True)
+    ruta_archivo = os.path.join(ruta_carpeta, nombre_archivo)
 
+    try:
         with open(ruta_archivo, 'wb') as f:
             f.write(pdf)
 
@@ -1306,18 +1326,18 @@ def descargar_reporte_prestados():
         )
         db.session.add(historial)
         db.session.commit()
-        logging.info(f"Reporte préstamos generado: {nombre_archivo}")
-
-        response = make_response(pdf)
-        response.headers['Content-Type'] = 'application/pdf'
-        response.headers['Content-Disposition'] = f'inline; filename={nombre_archivo}'
-        return response
+        logging.info(f"[Historial] Reporte prestados guardado: {nombre_archivo}")
 
     except Exception as e:
         db.session.rollback()
-        logging.error(f"Error generando PDF préstamos: {e}")
-        flash('Error generando PDF.', 'danger')
-        return redirect(url_for('main.historial_reportes'))
+        logging.error(f"Error guardando historial prestados: {e}")
+        flash('Error al guardar historial del reporte.', 'danger')
+
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename={nombre_archivo}'
+    return response
+
 # Reporte populares
 @main.route('/admin/reportes/populares')
 @login_required
@@ -1349,13 +1369,14 @@ def reporte_libros_populares():
     
 @main.route('/admin/reportes/descargar_reporte_populares')
 @login_required
-@roles_requeridos('administrador','bibliotecario')
+@roles_requeridos('administrador', 'bibliotecario')
 @nocache
 def descargar_reporte_populares():
     """
-    Genera y descarga PDF con ranking top 5 libros más populares.
-    Guarda historial.
+    Genera y descarga un PDF del ranking top 5 de libros más populares.
+    Registra historial solo en descargas reales.
     """
+
     prestamos_subq = db.session.query(
         Prestamo.libro_id,
         func.count(Prestamo.id).label('prestamos')
@@ -1374,8 +1395,12 @@ def descargar_reporte_populares():
         (func.coalesce(prestamos_subq.c.prestamos, 0) + func.coalesce(reservas_subq.c.reservas, 0)).label('total')
     ).outerjoin(prestamos_subq, prestamos_subq.c.libro_id == Libro.id) \
      .outerjoin(reservas_subq, reservas_subq.c.libro_id == Libro.id) \
-     .order_by(db.desc('total')) \
-     .limit(5).all()
+     .order_by(db.desc('total')).limit(5).all()
+
+    # Validación: si no hay datos, cancela
+    if not populares:
+        flash("No hay datos de libros populares para generar el reporte.", "warning")
+        return redirect(url_for('main.reporte_libros_populares'))
 
     datos = []
     for idx, p in enumerate(populares, start=1):
@@ -1390,13 +1415,20 @@ def descargar_reporte_populares():
 
     columnas = ["#", "Libro", "Autor", "Préstamos", "Reservas Pendientes", "Total"]
 
-    try:
-        pdf = generar_reporte_con_plantilla(datos, columnas, "Reporte de Libros Populares")
-        nombre_archivo = f"reporte_populares_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.pdf"
-        ruta_carpeta = os.path.join(current_app.root_path, 'static', 'archivos')
-        os.makedirs(ruta_carpeta, exist_ok=True)
-        ruta_archivo = os.path.join(ruta_carpeta, nombre_archivo)
+    pdf = generar_reporte_con_plantilla(datos, columnas, "Reporte de Libros Populares")
 
+    # Validación: PDF generado
+    if not pdf:
+        logging.error("No se pudo generar el PDF de populares.")
+        flash("Error generando PDF de libros populares.", "danger")
+        return redirect(url_for('main.reporte_libros_populares'))
+
+    nombre_archivo = f"reporte_populares_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.pdf"
+    ruta_carpeta = os.path.join(current_app.root_path, 'static', 'archivos')
+    os.makedirs(ruta_carpeta, exist_ok=True)
+    ruta_archivo = os.path.join(ruta_carpeta, nombre_archivo)
+
+    try:
         with open(ruta_archivo, 'wb') as f:
             f.write(pdf)
 
@@ -1407,18 +1439,20 @@ def descargar_reporte_populares():
         )
         db.session.add(historial)
         db.session.commit()
-        logging.info(f"Reporte populares generado: {nombre_archivo}")
-
-        response = make_response(pdf)
-        response.headers['Content-Type'] = 'application/pdf'
-        response.headers['Content-Disposition'] = f'inline; filename={nombre_archivo}'
-        return response
+        logging.info(f"[Historial] Reporte populares guardado: {nombre_archivo}")
 
     except Exception as e:
         db.session.rollback()
-        logging.error(f"Error generando PDF populares: {e}")
-        flash('Error generando PDF.', 'danger')
-        return redirect(url_for('main.historial_reportes'))
+        logging.error(f"Error guardando historial populares: {e}")
+        flash('Error al guardar historial del reporte de populares.', 'danger')
+
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename={nombre_archivo}'
+    return response
+
+
+
 # RUTA: Configuración admin
 @main.route('/admin/configuracion', methods=['GET', 'POST'])
 @login_required

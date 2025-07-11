@@ -93,6 +93,16 @@ class RegistroForm(FlaskForm):
         if Usuario.query.filter_by(documento=documento.data).first():
             raise ValidationError('Ya existe una cuenta con este número de documento.')
 
+class LoginForm(FlaskForm):
+    correo = StringField('Correo electrónico', validators=[
+        DataRequired(message="El correo es requerido."),
+        Email(message="Correo inválido.")
+    ])
+    password = PasswordField('Contraseña', validators=[
+        DataRequired(message="La contraseña es requerida.")
+    ])
+    submit = SubmitField('Iniciar sesión')
+
 # New Book Registration Form
 class LibroForm(FlaskForm):
     # ISBN, required, only numbers, X, and hyphens

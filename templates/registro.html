@@ -37,22 +37,43 @@
           <label class="form-label">{{ form.nombre.label }}</label>
           <div class="input-group mb-2">
             <span class="input-group-text"><i class="bi bi-person"></i></span>
-            {{ form.nombre(class="form-control", placeholder="Nombre") }}
+            {{ form.nombre(class="form-control" + (" is-invalid" if form.nombre.errors else ""), placeholder="Nombre") }}
           </div>
+          {% if form.nombre.errors %}
+            {% for error in form.nombre.errors %}
+              <div class="invalid-feedback d-block">
+                {{ error }}
+              </div>
+            {% endfor %}
+          {% endif %}
 
           <!-- ✅ Document field -->
           <label class="form-label">{{ form.documento.label }}</label>
           <div class="input-group mb-2">
             <span class="input-group-text"><i class="bi bi-card-text"></i></span>
-            {{ form.documento(class="form-control", placeholder="Número de documento") }}
+            {{ form.documento(class="form-control" + (" is-invalid" if form.documento.errors else ""), placeholder="Número de documento") }}
           </div>
+          {% if form.documento.errors %}
+            {% for error in form.documento.errors %}
+              <div class="invalid-feedback d-block">
+                {{ error }}
+              </div>
+            {% endfor %}
+          {% endif %}
 
           <!-- ✅ Birth date field -->
           <label class="form-label">{{ form.fecha_nacimiento.label }}</label>
           <div class="input-group mb-2">
             <span class="input-group-text"><i class="bi bi-calendar"></i></span>
-            {{ form.fecha_nacimiento(class="form-control", type="date") }}
+            {{ form.fecha_nacimiento(class="form-control" + (" is-invalid" if form.fecha_nacimiento.errors else ""), type="date") }}
           </div>
+          {% if form.fecha_nacimiento.errors %}
+            {% for error in form.fecha_nacimiento.errors %}
+              <div class="invalid-feedback d-block">
+                {{ error }}
+              </div>
+            {% endfor %}
+          {% endif %}
         </div>
 
         <!-- ✅ Column 2 -->
@@ -61,22 +82,43 @@
           <label class="form-label">{{ form.apellido.label }}</label>
           <div class="input-group mb-2">
             <span class="input-group-text"><i class="bi bi-person-vcard"></i></span>
-            {{ form.apellido(class="form-control", placeholder="Apellido") }}
+            {{ form.apellido(class="form-control" + (" is-invalid" if form.apellido.errors else ""), placeholder="Apellido") }}
           </div>
+          {% if form.apellido.errors %}
+            {% for error in form.apellido.errors %}
+              <div class="invalid-feedback d-block">
+                {{ error }}
+              </div>
+            {% endfor %}
+          {% endif %}
 
           <!-- ✅ Address field -->
           <label class="form-label">{{ form.direccion.label }}</label>
           <div class="input-group mb-2">
             <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
-            {{ form.direccion(class="form-control", placeholder="Dirección") }}
+            {{ form.direccion(class="form-control" + (" is-invalid" if form.direccion.errors else ""), placeholder="Dirección") }}
           </div>
+          {% if form.direccion.errors %}
+            {% for error in form.direccion.errors %}
+              <div class="invalid-feedback d-block">
+                {{ error }}
+              </div>
+            {% endfor %}
+          {% endif %}
 
           <!-- ✅ Password field -->
           <label class="form-label">{{ form.password.label }}</label>
           <div class="input-group mb-2">
             <span class="input-group-text"><i class="bi bi-lock"></i></span>
-            {{ form.password(class="form-control", placeholder="Contraseña") }}
+            {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Contraseña") }}
           </div>
+          {% if form.password.errors %}
+            {% for error in form.password.errors %}
+              <div class="invalid-feedback d-block">
+                {{ error }}
+              </div>
+            {% endfor %}
+          {% endif %}
         </div>
 
         <!-- ✅ Column 3 -->
@@ -85,22 +127,43 @@
           <label class="form-label">{{ form.correo.label }}</label>
           <div class="input-group mb-2">
             <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-            {{ form.correo(class="form-control", placeholder="Correo electrónico") }}
+            {{ form.correo(class="form-control" + (" is-invalid" if form.correo.errors else ""), placeholder="Correo electrónico") }}
           </div>
+          {% if form.correo.errors %}
+            {% for error in form.correo.errors %}
+              <div class="invalid-feedback d-block">
+                {{ error }}
+              </div>
+            {% endfor %}
+          {% endif %}
 
           <!-- ✅ Phone number field -->
           <label class="form-label">{{ form.telefono.label }}</label>
           <div class="input-group mb-2">
             <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-            {{ form.telefono(class="form-control", placeholder="Número de teléfono") }}
+            {{ form.telefono(class="form-control" + (" is-invalid" if form.telefono.errors else ""), placeholder="Número de teléfono") }}
           </div>
+          {% if form.telefono.errors %}
+            {% for error in form.telefono.errors %}
+              <div class="invalid-feedback d-block">
+                {{ error }}
+              </div>
+            {% endfor %}
+          {% endif %}
 
           <!-- ✅ Confirm password field -->
           <label class="form-label">{{ form.confirm_password.label }}</label>
           <div class="input-group mb-2">
             <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-            {{ form.confirm_password(class="form-control", placeholder="Confirmar contraseña") }}
+            {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else ""), placeholder="Confirmar contraseña") }}
           </div>
+          {% if form.confirm_password.errors %}
+            {% for error in form.confirm_password.errors %}
+              <div class="invalid-feedback d-block">
+                {{ error }}
+              </div>
+            {% endfor %}
+          {% endif %}
         </div>
       </div>
 
