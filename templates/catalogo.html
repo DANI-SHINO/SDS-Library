@@ -4,31 +4,23 @@
 
 {% block content %}
 <div class="container">
-  <!-- ✅ Page Title -->
   <h2 class="mb-4" style="font-family: 'Merriweather', serif;">Catálogo de Libros</h2>
 
   <div class="row">
     {% if libros.items %}
-      <!-- ✅ Loop through each book -->
       {% for libro in libros.items %}
         <div class="col-md-4 col-lg-3 mb-4">
           <div class="card h-100 shadow-sm border-0 position-relative">
 
-            <!-- ✅ Book Cover -->
+            <!-- Portada -->
             <img src="{{ libro.portada_url if libro.portada_url else url_for('static', filename='imagenes/portada_default.png') }}"
                  class="card-img-top"
                  alt="Portada del libro '{{ libro.titulo }}'"
                  style="height: 280px; object-fit: contain; padding: 10px; background-color: #1e293b; border-radius: 8px;">
 
-            <!-- ✅ Book Info -->
             <div class="card-body d-flex flex-column">
-              <!-- ✅ Title in white -->
               <h5 class="card-title text-white">{{ libro.titulo }}</h5>
-
-              <!-- ✅ Author -->
               <p class="card-text mb-1">Autor: {{ libro.autor }}</p>
-
-              <!-- ✅ Availability -->
               <p class="card-text">
                 <small class="text-info">
                   {% if libro.cantidad_disponible > 0 %}
@@ -39,24 +31,16 @@
                 </small>
               </p>
 
-              <!-- ✅ Actions -->
               <div class="mt-auto">
                 {% if current_user.is_authenticated and current_user.rol == 'lector' %}
-                  {% if libro.cantidad_disponible <= 0 %}
-                    <!-- ✅ Out of stock → Allow reservation -->
-                    <a href="{{ url_for('main.reservar_libro_lector', libro_id=libro.id) }}"
-                       class="btn btn-success btn-sm w-100 mb-2">
-                      <i class="bi bi-bookmark-check-fill me-1"></i> Reservar
-                    </a>
-                  {% else %}
-                    <!-- ✅ In stock → No reservation needed -->
-                    <button class="btn btn-secondary btn-sm w-100 mb-2" disabled>
-                      <i class="bi bi-bookmark-x me-1"></i> Disponible en biblioteca
-                    </button>
-                  {% endif %}
+                  <!-- Siempre permite reservar -->
+                  <a href="{{ url_for('main.reservar_libro_lector', libro_id=libro.id) }}"
+                     class="btn btn-success btn-sm w-100 mb-2">
+                    <i class="bi bi-bookmark-check-fill me-1"></i> Reservar
+                  </a>
                 {% endif %}
 
-                <!-- ✅ View Details -->
+                <!-- Ver Detalles -->
                 <a href="{{ url_for('main.detalle_libro', libro_id=libro.id) }}"
                    class="btn btn-outline-primary btn-sm w-100">
                   <i class="bi bi-eye me-1"></i> Ver Detalles
@@ -67,12 +51,10 @@
         </div>
       {% endfor %}
     {% else %}
-      <!-- ✅ No books available -->
       <p class="text-muted">No hay libros disponibles.</p>
     {% endif %}
   </div>
 
-  <!-- ✅ Bootstrap 5 Pagination -->
   <nav aria-label="Paginación de libros" class="mt-4">
     <ul class="pagination justify-content-center">
       {% if libros.has_prev %}
@@ -80,26 +62,20 @@
           <a class="page-link" href="{{ url_for('main.catalogo', page=libros.prev_num) }}">Anterior</a>
         </li>
       {% else %}
-        <li class="page-item disabled">
-          <span class="page-link">Anterior</span>
-        </li>
+        <li class="page-item disabled"><span class="page-link">Anterior</span></li>
       {% endif %}
 
       {% for page_num in libros.iter_pages() %}
         {% if page_num %}
           {% if page_num == libros.page %}
-            <li class="page-item active">
-              <span class="page-link">{{ page_num }}</span>
-            </li>
+            <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
           {% else %}
             <li class="page-item">
               <a class="page-link" href="{{ url_for('main.catalogo', page=page_num) }}">{{ page_num }}</a>
             </li>
           {% endif %}
         {% else %}
-          <li class="page-item disabled">
-            <span class="page-link">…</span>
-          </li>
+          <li class="page-item disabled"><span class="page-link">…</span></li>
         {% endif %}
       {% endfor %}
 
@@ -108,9 +84,7 @@
           <a class="page-link" href="{{ url_for('main.catalogo', page=libros.next_num) }}">Siguiente</a>
         </li>
       {% else %}
-        <li class="page-item disabled">
-          <span class="page-link">Siguiente</span>
-        </li>
+        <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
       {% endif %}
     </ul>
   </nav>

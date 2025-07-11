@@ -844,6 +844,7 @@ def reservar_libro_lector(libro_id):
             flash('Llave incorrecta.', 'danger')
             return redirect(url_for('main.reservar_libro_lector', libro_id=libro.id))
 
+        # Verifica si ya tiene una reserva activa o pendiente
         reserva_existente = Reserva.query.filter_by(
             libro_id=libro.id,
             usuario_id=current_user.id
@@ -853,23 +854,32 @@ def reservar_libro_lector(libro_id):
             flash('Ya tienes una reserva para este libro.', 'warning')
             return redirect(url_for('main.catalogo'))
 
+        # ✅ Si hay stock → reserva activa y descuenta 1
         if libro.cantidad_disponible > 0:
-            flash('Hay ejemplares disponibles, solicita préstamo en biblioteca.', 'info')
-            return redirect(url_for('main.catalogo'))
-
-        posicion = Reserva.query.filter_by(libro_id=libro.id, estado='pendiente').count() + 1
-        nueva_reserva = Reserva(
-            usuario_id=current_user.id,
-            libro_id=libro.id,
-            posicion=posicion,
-            estado='pendiente'
-        )
+            nueva_reserva = Reserva(
+                usuario_id=current_user.id,
+                libro_id=libro.id,
+                estado='activa'
+            )
+            libro.cantidad_disponible -= 1
+            libro.actualizar_estado()
+            mensaje_estado = '✅ Reserva ACTIVADA. Pasa a recoger tu libro.'
+        else:
+            # ✅ Sin stock → reserva pendiente en cola
+            posicion = Reserva.query.filter_by(libro_id=libro.id, estado='pendiente').count() + 1
+            nueva_reserva = Reserva(
+                usuario_id=current_user.id,
+                libro_id=libro.id,
+                posicion=posicion,
+                estado='pendiente'
+            )
+            mensaje_estado = f'⏳ Reserva PENDIENTE. Lugar: {posicion}.'
 
         try:
             db.session.add(nueva_reserva)
             db.session.commit()
-            logging.info(f"Reserva creada: Libro {libro.id}, Usuario {current_user.id}, Posición {posicion}")
 
+            # Envía correo de confirmación
             msg = Message(
                 'Reserva registrada - Biblioteca',
                 sender='noreply@biblioteca.com',
@@ -879,13 +889,15 @@ def reservar_libro_lector(libro_id):
 Hola {current_user.nombre},
 
 Tu reserva para "{libro.titulo}" ha sido registrada.
-Lugar en la cola: {posicion}
+Estado: {nueva_reserva.estado.capitalize()}
+{'Lugar en la cola: ' + str(posicion) if nueva_reserva.estado == 'pendiente' else ''}
 
-Te notificaremos cuando esté disponible.
+Te notificaremos cualquier cambio.
 '''
             mail.send(msg)
 
-            flash(f'⏳ Reserva registrada. Lugar: {posicion}.', 'success')
+            logging.info(f"Reserva creada: Libro {libro.id}, Usuario {current_user.id}, Estado {nueva_reserva.estado}")
+            flash(mensaje_estado, 'success')
 
         except Exception as e:
             db.session.rollback()
@@ -894,7 +906,8 @@ Te notificaremos cuando esté disponible.
 
         return redirect(url_for('main.catalogo'))
 
-    return render_template('reservar_libro.html', form=form, libro=libro)
+    return render_template('reservar_libro.html', libro=libro, form=form)
+
 # 📌 Cancelar reserva lector
 @main.route('/reservas/<int:reserva_id>/cancelar', methods=['POST'])
 @login_required

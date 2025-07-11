@@ -52,16 +52,9 @@
               </form>
 
               <!-- ✅ Reserve if not available -->
-              {% if libro.cantidad_disponible == 0 %}
                 <a href="{{ url_for('main.reservar_libro_lector', libro_id=libro.id) }}" class="btn btn-success">
                   <i class="bi bi-bookmark-check-fill me-1"></i> Reservar Libro
                 </a>
-              {% else %}
-                <!-- ✅ If available, reservation not possible -->
-                <button class="btn btn-secondary disabled">
-                  <i class="bi bi-bookmark-x me-1"></i> Solo préstamo disponible
-                </button>
-              {% endif %}
             {% endif %}
 
             <!-- ✅ Back to catalog button -->
